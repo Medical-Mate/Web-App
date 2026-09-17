@@ -17,7 +17,7 @@ import {
   QuoteBlock,
 } from '../components/ui'
 import { S, fmt } from '../data/strings'
-import { fetchHospitals, searchHospitals } from '../data/hospitals'
+import { fetchHospitals, hospitalKey, sameHospital, searchHospitals } from '../data/hospitals'
 import { apiAvailable } from '../data/api'
 import type { SearchResult } from '../data/hospitals'
 import { classifyMemo } from '../data/ai'
@@ -81,7 +81,7 @@ export function HospitalPickScreen() {
   /* 고른 병원이 결과에서 빠지면 선택을 지운다. 보이지 않는 것이 골라져 있으면 완료를 눌렀을
      때 무엇이 저장되는지 알 수 없다(원본 `apply`). */
   useEffect(() => {
-    if (picked && !result.items.some((h) => h.name === picked.name)) setPicked(null)
+    if (picked && !result.items.some((h) => sameHospital(h, picked))) setPicked(null)
   }, [result, picked])
 
   /* 아직 진료를 받지 않은 병원을 찾는 자리인지. 1m-B 와 일정 추가가 여기 해당한다. */
@@ -211,11 +211,11 @@ export function HospitalPickScreen() {
           </div>
         ) : (
           <div>
-            {result.items.map((h) => (
+            {result.items.map((h, i) => (
               <ResultRow
-                key={h.name}
+                key={`${hospitalKey(h)}#${i}`}
                 hospital={h}
-                selected={picked?.name === h.name}
+                selected={sameHospital(h, picked)}
                 onClick={() => setPicked(h)}
               />
             ))}

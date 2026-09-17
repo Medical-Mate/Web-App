@@ -83,6 +83,22 @@ export const HOSPITALS: Hospital[] = [
   { name: '세종나성내과의원', address: '세종특별자치시 나성동 470, 5층' },
 ]
 
+/**
+ * 같은 병원인지.
+ *
+ * **이름만으로 가르지 않는다.** 같은 이름의 다른 지점이 흔하다 — 검색 결과에 주소만 다른
+ * 줄이 여럿 온다. 이름만 맞대면 한 줄을 골랐을 때 이름이 같은 줄이 모두 골라진 것으로 보인다.
+ * 주소는 서로 다른 지점을 가를 수 있는 유일한 값이다(Backend#80).
+ */
+export function sameHospital(a: Hospital | null | undefined, b: Hospital | null | undefined): boolean {
+  return a != null && b != null && a.name === b.name && a.address === b.address
+}
+
+/** 목록에서 한 줄을 가리키는 열쇠. */
+export function hospitalKey(h: Hospital): string {
+  return `${h.name}|${h.address}`
+}
+
 export interface SearchResult {
   items: Hospital[]
   total: number
