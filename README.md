@@ -1,12 +1,18 @@
 # 진료메이트 웹앱 (해커톤 데모용)
 
-안드로이드 앱 `C:/Claude/MedicalMate` 를 웹앱으로 옮긴 것이다.
-**백엔드를 쓰지 않고 브라우저 localStorage 에만 저장한다.**
+코틀린 안드로이드 앱 **진료메이트**를 웹으로 옮긴 시연용 복제본이다. 화면 · 문구 · 간격은
+원본 ViewModel 과 Figma 와이어프레임에 맞췄다.
+
+**저장은 브라우저 localStorage 에만 남는다.** 카드 · 일정 · 기록 · 프로필이 모두 그렇다.
+서버는 백엔드가 브라우저용으로 낸 **인증 없는 데모 경로(`/api/demo/*`)만** 부른다 — 부위 마스터,
+병원 검색, AI 증상 문답, 진료 후 메모 정리. 닿지 못하면 대본과 로컬 병원 목록으로 대신해서
+시연이 끊기지 않는다.
 
 ```bash
 npm install
 npm run dev      # http://localhost:5173
 npm run build    # dist/ 에 정적 파일 생성
+npm run preview  # 빌드 결과를 배포처럼 확인 (http://localhost:4173)
 ```
 
 `dist/` 는 그대로 어디에나 올릴 수 있는 정적 사이트다. HashRouter 를 쓰므로 서버
