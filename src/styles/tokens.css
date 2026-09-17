@@ -1,0 +1,275 @@
+/* 진료메이트 디자인 토큰
+ * 출처: MedicalMate/app/src/main/java/com/mist/medicalmate/core/designsystem/
+ *   Palette.kt · MedicalMateColors.kt · Type.kt · Dimens.kt · MedicalMateRadius.kt · Elevation.kt
+ * 값을 임의로 바꾸지 말 것. 원본과 1:1로 맞춰 둔 것이다.
+ */
+
+@font-face {
+  font-family: Pretendard;
+  src: url('../assets/fonts/pretendard_regular.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: Pretendard;
+  src: url('../assets/fonts/pretendard_medium.otf') format('opentype');
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: Pretendard;
+  src: url('../assets/fonts/pretendard_semibold.otf') format('opentype');
+  font-weight: 600;
+  font-display: swap;
+}
+@font-face {
+  font-family: Pretendard;
+  src: url('../assets/fonts/pretendard_bold.otf') format('opentype');
+  font-weight: 700;
+  font-display: swap;
+}
+
+:root {
+  /* ── 원시 팔레트 (Palette.kt · 화면에서 직접 쓰지 말 것) ────────── */
+  --mm-primary-50: #f2f4fe;
+  --mm-primary-100: #e3e7fc;
+  --mm-primary-200: #c7cff8;
+  --mm-primary-300: #a3aff1;
+  --mm-primary-400: #7484e3;
+  --mm-primary-500: #5566d2;
+  --mm-primary-600: #3b4fc0;
+  --mm-primary-700: #2e3e9e;
+  --mm-primary-800: #242f79;
+  --mm-primary-900: #1a2154;
+
+  --mm-neutral-0: #ffffff;
+  --mm-neutral-25: #fafbfd;
+  --mm-neutral-50: #f5f6fa;
+  --mm-neutral-100: #edeff5;
+  --mm-neutral-200: #dee1eb;
+  --mm-neutral-300: #c6cad8;
+  --mm-neutral-400: #989eb1;
+  --mm-neutral-500: #7c8397;
+  --mm-neutral-600: #585f73;
+  --mm-neutral-700: #3a4053;
+  --mm-neutral-900: #131722;
+
+  --mm-amber-50: #fff4d6;
+  --mm-amber-100: #ffe9b3;
+  --mm-amber-500: #e0a227;
+  --mm-amber-700: #8a5a0b;
+
+  --mm-green-50: #e4f7ed;
+  --mm-green-100: #c6f0dc;
+  --mm-green-500: #12a05f;
+  --mm-green-700: #0e7a4a;
+
+  --mm-red-50: #ffedeb;
+  --mm-red-100: #ffd8d4;
+  --mm-red-500: #e5504a;
+  --mm-red-700: #c4302b;
+
+  /* ── 시맨틱 컬러 (MedicalMateColors.kt · Light) ─────────────────── */
+  --mm-bg-canvas: var(--mm-neutral-50);
+  --mm-bg-surface: var(--mm-neutral-0);
+  --mm-bg-subtle: var(--mm-neutral-100);
+  --mm-bg-primary: var(--mm-primary-500);
+  --mm-bg-primary-pressed: var(--mm-primary-600);
+  --mm-bg-primary-subtle: var(--mm-primary-100);
+  --mm-bg-primary-faint: var(--mm-primary-50);
+  --mm-bg-info: var(--mm-primary-50);
+  --mm-bg-success: var(--mm-green-50);
+  --mm-bg-warning: var(--mm-amber-50);
+  --mm-bg-danger: var(--mm-red-50);
+  --mm-bg-inverse: var(--mm-neutral-900);
+  --mm-bg-inverse-soft: var(--mm-neutral-700);
+  --mm-bg-scrim: var(--mm-neutral-900);
+
+  --mm-fg-default: var(--mm-neutral-900);
+  --mm-fg-subtle: var(--mm-neutral-600);
+  --mm-fg-muted: var(--mm-neutral-500);
+  --mm-fg-disabled: var(--mm-neutral-300);
+  --mm-fg-on-primary: var(--mm-neutral-0);
+  --mm-fg-on-inverse: var(--mm-neutral-0);
+  --mm-fg-primary: var(--mm-primary-700);
+  --mm-fg-link: var(--mm-primary-700);
+  --mm-fg-info: var(--mm-primary-700);
+  --mm-fg-success: var(--mm-green-700);
+  --mm-fg-warning: var(--mm-amber-700);
+  --mm-fg-danger: var(--mm-red-700);
+
+  --mm-border-subtle: var(--mm-neutral-200);
+  --mm-border-default: var(--mm-neutral-300);
+  --mm-border-strong: var(--mm-neutral-500);
+  --mm-border-focus: var(--mm-primary-500);
+  --mm-border-primary: var(--mm-primary-500);
+
+  /* ── 통증 강도 5단계 ───────────────────────────────────────────── */
+  --mm-severity-1: #ffe3a8;
+  --mm-severity-2: #ffc79b;
+  --mm-severity-3: #ffa894;
+  --mm-severity-4: #f58079;
+  --mm-severity-5: #dc5a55;
+  --mm-severity-1-tint: #fff6e4;
+  --mm-severity-2-tint: #ffefe4;
+  --mm-severity-3-tint: #ffe9e3;
+  --mm-severity-4-tint: #fde4e2;
+  --mm-severity-5-tint: #f9deddff;
+
+  /* ── 브랜드 고정색 (BrandColor.kt · 변경 금지) ──────────────────── */
+  --mm-kakao-container: #fee500;
+  --mm-kakao-label: rgba(0, 0, 0, 0.85);
+
+  /* ── 간격 (MedicalMateSpace) ───────────────────────────────────── */
+  --mm-s2: 2px;
+  --mm-s4: 4px;
+  --mm-s6: 6px;
+  --mm-s8: 8px;
+  --mm-s10: 10px;
+  --mm-s12: 12px;
+  --mm-s14: 14px;
+  --mm-s16: 16px;
+  --mm-s20: 20px;
+  --mm-s24: 24px;
+  --mm-s32: 32px;
+  --mm-s40: 40px;
+
+  /* ── 치수 (MedicalMateSize) ────────────────────────────────────── */
+  --mm-touch-min: 48px;
+  --mm-icon-sm: 18px;
+  --mm-icon-md: 20px;
+  --mm-icon-lg: 24px;
+  --mm-control-sm: 40px;
+  --mm-control-md: 48px;
+  --mm-control-lg: 56px;
+  --mm-mic: 88px;
+  --mm-screen-width: 360px;
+  /* 목업 기기의 베젤과 화면 모서리. 베젤 8 은 360 폭에서 약 1.6mm 다.
+     모서리는 거의 각지게 둔다 — 크게 두면 프레임이 기기보다 먼저 눈에 들어온다. */
+  --mm-bezel: 8px;
+  --mm-screen-radius: 6px;
+  --mm-gutter: 20px;
+  --mm-content-width: 320px;
+  --mm-safe-bottom: 24px;
+  --mm-navbar-height: 56px;
+  --mm-tabbar-height: 79px;
+
+  /* ── 반경 (MedicalMateRadius) ──────────────────────────────────── */
+  --mm-radius-xs: 8px;
+  --mm-radius-sm: 12px;
+  --mm-radius-md: 16px;
+  --mm-radius-lg: 20px;
+  --mm-radius-xl: 24px;
+  --mm-radius-xxl: 28px;
+  --mm-radius-full: 999px;
+  --mm-date-cell: 42px;
+
+  /* ── 모션 ──
+     화면 전환 시간과 easing 은 Material 의 표준 전환 값이다. 디자인 문서에 전환 규격이
+     없고, navigation-compose 의 기본값 700ms 크로스페이드는 한 화면 넘기는 데 길다. */
+  --mm-nav-duration: 320ms;
+  /* 인체도의 앵커 → 구역 확대. 화면을 넘기는 것이 아니라 판 하나가 바뀌는 것이라 짧다. */
+  --mm-zoom-duration: 240ms;
+  --mm-motion-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --mm-radius-button-m: 14px;
+  --mm-radius-date-cell: 13px;
+
+  /* ── 고도 (MedicalMateElevation · tint #1B255A) ─────────────────── */
+  /* Figma Elevation/Card 를 그대로 옮긴 값이다.
+     #1B255A14 offset(0,3) blur10 · #1B255A0D offset(0,1) blur2 */
+  --mm-elev-card:
+    0 3px 10px rgba(27, 37, 90, 0.078),
+    0 1px 2px rgba(27, 37, 90, 0.051);
+  --mm-elev-float: 0 -1px 12px rgba(27, 37, 90, 0.06), 0 2px 8px rgba(27, 37, 90, 0.06);
+  --mm-elev-sheet: 0 -4px 24px rgba(27, 37, 90, 0.12);
+
+  /* ── 타이포 (Type.kt) ──────────────────────────────────────────── */
+  --mm-font: Pretendard, -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic',
+    system-ui, sans-serif;
+}
+
+/* ── 타이포 유틸리티 ──────────────────────────────────────────────
+ * letterSpacing 은 원본이 em 단위(%/100)라 그대로 em 으로 옮긴다.
+ */
+.mm-display-m {
+  font-weight: 700;
+  font-size: 30px;
+  line-height: 40px;
+  letter-spacing: -0.02em;
+}
+.mm-heading-l {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 34px;
+  letter-spacing: -0.02em;
+}
+.mm-heading-m {
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.015em;
+}
+.mm-heading-s {
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 24px;
+  letter-spacing: -0.01em;
+}
+.mm-body-l {
+  font-weight: 400;
+  font-size: 17px;
+  line-height: 26px;
+}
+.mm-body-l-strong {
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 26px;
+}
+.mm-body-m {
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 24px;
+}
+.mm-body-m-strong {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 24px;
+}
+.mm-body-s {
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 20px;
+}
+.mm-body-s-strong {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 20px;
+}
+.mm-label-l {
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 20px;
+}
+.mm-label-m {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+}
+.mm-label-s {
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+}
+.mm-numeric-l {
+  font-weight: 700;
+  font-size: 24px;
+  line-height: 30px;
+  letter-spacing: -0.015em;
+}
+.mm-numeric-m {
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 22px;
+  letter-spacing: -0.01em;
+}

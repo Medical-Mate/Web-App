@@ -1,0 +1,2345 @@
+{
+  "meta": {
+    "name": "진료메이트 웹앱 데모 목데이터",
+    "version": "1.1.0",
+    "scenario": "docs/DEMO-SCENARIO-30steps.md",
+    "today": "2026-09-15",
+    "todayLabel": "2026년 9월 15일 (화)",
+    "locale": "ko-KR",
+    "timeZone": "Asia/Seoul",
+    "description": "해커톤 시연 30단계를 웹앱에서 서버 없이 재현하기 위한 완성 목데이터. 값의 출처는 Android 소스(픽스처·Preview·strings.xml)이고, 소스에 없는 값만 generated 목록에 적었다.",
+    "sourceOfTruth": [
+      "app/src/main/java/com/mist/medicalmate/calendar/ui/CalendarFixtures.kt",
+      "app/src/main/java/com/mist/medicalmate/visit/ui/VisitFixtures.kt",
+      "app/src/main/java/com/mist/medicalmate/card/ui/RecordDetailFixtures.kt",
+      "app/src/main/java/com/mist/medicalmate/home/ui/HomePreviews.kt",
+      "app/src/main/java/com/mist/medicalmate/card/ui/BriefCardScreen.kt",
+      "app/src/main/java/com/mist/medicalmate/card/ui/RecordViewModel.kt",
+      "app/src/main/java/com/mist/medicalmate/card/ui/BriefCardListViewModel.kt",
+      "app/src/main/java/com/mist/medicalmate/calendar/ui/ScheduleAddViewModel.kt",
+      "app/src/main/java/com/mist/medicalmate/profile/ui/MyProfileViewModel.kt",
+      "app/src/main/java/com/mist/medicalmate/profile/ui/HealthEditViewModel.kt",
+      "app/src/main/java/com/mist/medicalmate/intake/ui/IntakeScreen.kt",
+      "app/src/main/java/com/mist/medicalmate/visit/ui/HospitalPickScreen.kt",
+      "app/src/main/java/com/mist/medicalmate/visit/ui/ClinicConfirmScreen.kt",
+      "app/src/main/res/values/strings.xml",
+      "docs/DEMO-SCENARIO-30steps.md"
+    ],
+    "generated": [
+      "profile.birthYear (1992) — 시나리오는 '34세'만 주고 생년을 주지 않는다. 만 나이 기준 역산값",
+      "hospitalSearch.results[*].address — 심평원 주소를 받아올 수 없어 플레이스홀더로 채웠다",
+      "hospitalSearch.results[1..4] — '서울삼성내과의원'을 뺀 나머지 후보 4곳은 검색 결과를 그럴듯하게 보이게 하려고 만든 이름",
+      "briefCard.items[*].scenarioLabel — 시나리오 표의 줄 이름. 앱의 axisLabel과 달라서 대조용으로 함께 실었다",
+      "calendar.snapshots.*.recordDays / plannedDays — 시나리오가 '점이 찍힌다'까지만 말해서 날짜 집합은 흐름에서 유도했다",
+      "notification.hasUnread (false) — HomePreviews는 true지만 데모에서 알림을 열지 않으므로 끈다",
+      "calendarDay.*.records[0].metaShorthand / recordList.groups[0].items[0].detail — 시안이 그리는 짧은 꼴. RECORD_META_AXES 규칙이 만들어 내는 값은 metaShorthand가 아니라 meta 쪽이다"
+    ],
+    "namingNote": "앱 픽스처의 병원은 'OO' 마스킹 이름(서울OO병원 내과)이고 데모는 '서울삼성내과의원'이다. 둘을 섞지 않는다. appFixtures 섹션이 앱의 원본값, 나머지가 데모값이다.",
+    "review": {
+      "reviewedOn": "2026-09-16",
+      "against": [
+        "CalendarFixtures.kt",
+        "VisitFixtures.kt",
+        "RecordDetailFixtures.kt",
+        "HomePreviews.kt",
+        "CalendarDayPreviews.kt",
+        "MedicalMateScreenPreviews.kt",
+        "BriefCardScreen.kt",
+        "IntakeScreen.kt",
+        "HospitalPickScreen.kt",
+        "ClinicConfirmScreen.kt",
+        "ScheduleAddViewModel.kt",
+        "RecordViewModel.kt",
+        "BriefCardListViewModel.kt",
+        "MyProfileViewModel.kt",
+        "MyProfileUiState.kt",
+        "HealthEditViewModel.kt",
+        "HomeUiState.kt",
+        "VisitUiState.kt",
+        "CardMapping.kt",
+        "CardHealth.kt",
+        "VisitMapping.kt",
+        "CalendarDayViewModel.kt",
+        "strings.xml",
+        "RecordDetailFixturesTest.kt"
+      ],
+      "corrections": [
+        "calendarDay.*.records[0].meta — RECORD_META_AXES 규칙 산출값으로 교체하고 시안값은 metaShorthand로 옮겼다 (검사 축은 빠지고, 각 축 값의 첫 줄만 쓴다)",
+        "recordList.groups[0].items[0].detail — 서버에 없는 값임을 detailSource로 표시했다"
+      ],
+      "verifiedUnchanged": "profile · profileSetup 칩 3종 · intake 7턴 · aiSuggested 3개 · severity 5단계 · briefCard 축 라벨과 순서 · hospitalSearch 문구 · appointment/할 일 3개 · classifyResponse 4축 · visitRecord 4칸 · appFixtures 전부 — 소스와 글자 그대로 일치"
+    }
+  },
+  "profile": {
+    "id": "user-1",
+    "initial": "고",
+    "name": "고OO",
+    "birthYear": 1992,
+    "birthYearLabel": "1992년생",
+    "age": 34,
+    "sex": "MALE",
+    "sexLabel": "남",
+    "loginLabel": "카카오로 로그인",
+    "patientLine": "고OO · 34세 남 · 2026.09.15 작성",
+    "health": {
+      "medications": {
+        "status": "KNOWN",
+        "items": [
+          "혈압약",
+          "진통제"
+        ],
+        "row": "혈압약 · 진통제"
+      },
+      "conditions": {
+        "status": "KNOWN",
+        "items": [
+          "고혈압"
+        ],
+        "row": "고혈압"
+      },
+      "allergies": {
+        "status": "KNOWN",
+        "items": [
+          "페니실린"
+        ],
+        "row": "페니실린"
+      }
+    },
+    "settings": {
+      "VISIT_REMINDER": true,
+      "CARD_AUTO_SAVE": true,
+      "HANDOFF_BRIGHTNESS": false
+    }
+  },
+  "profileSetup": {
+    "totalSteps": 3,
+    "steps": [
+      {
+        "key": "MEDICATIONS",
+        "number": 1,
+        "question": "지금 드시는 약이 있나요?",
+        "description": "처방약, 영양제, 한약 모두 포함해요. 여러 개 골라도 돼요.",
+        "label": "복용 중인 약",
+        "options": [
+          "혈압약",
+          "당뇨약",
+          "진통제",
+          "위장약",
+          "영양제",
+          "한약",
+          "피임약",
+          "수면제"
+        ],
+        "chosen": [
+          "혈압약",
+          "진통제"
+        ],
+        "cta": "다음"
+      },
+      {
+        "key": "CONDITIONS",
+        "number": 2,
+        "question": "진단받은 병이 있나요?",
+        "description": "지금 치료 중이거나 꾸준히 관리하는 것을 알려주세요.",
+        "label": "기저질환",
+        "options": [
+          "고혈압",
+          "당뇨",
+          "고지혈증",
+          "천식",
+          "갑상선",
+          "위염·역류",
+          "관절염",
+          "우울·불안"
+        ],
+        "chosen": [
+          "고혈압"
+        ],
+        "cta": "다음"
+      },
+      {
+        "key": "ALLERGIES",
+        "number": 3,
+        "question": "알러지가 있나요?",
+        "description": "약이나 음식에 반응이 있었다면 꼭 알려주세요.",
+        "label": "알러지",
+        "options": [
+          "페니실린",
+          "아스피린",
+          "조개·갑각류",
+          "땅콩",
+          "계란",
+          "꽃가루",
+          "먼지·진드기"
+        ],
+        "chosen": [
+          "페니실린"
+        ],
+        "tooltip": "브리핑 카드 맨 위에 항상 표시돼요",
+        "tooltipOpenLabel": "알러지를 왜 묻는지 보기",
+        "cta": "완료"
+      }
+    ],
+    "otherInput": {
+      "label": "직접 입력",
+      "placeholder": "목록에 없으면 여기에 적어주세요",
+      "helper": "정확한 이름을 몰라도 괜찮아요"
+    },
+    "complete": {
+      "title": "내 정보가 등록되었어요",
+      "description": "복용약 · 기저질환 · 알러지를 카드에 담았어요"
+    }
+  },
+  "onboarding": {
+    "next": "다음",
+    "skip": "건너뛰기",
+    "start": "시작하기",
+    "pages": [
+      {
+        "key": "PREPARE",
+        "title": "말하기 어려웠던 증상,\n함께 준비해요.",
+        "description": "아픈 곳을 짚고, 증상을 말해 주세요.\n진료 전에 보여줄 카드부터\n진료 후 기록까지 함께 정리해요."
+      },
+      {
+        "key": "POINT",
+        "title": "짚어요.",
+        "description": "정확한 의학 용어를 몰라도 괜찮아요.\n아픈 부위를 먼저 고르고,\n이어지는 질문에 편하게 답해 주세요."
+      },
+      {
+        "key": "CARD",
+        "title": "정리해요.",
+        "description": "말한 증상은 AI가 한 장으로 정리해요.\n직접 확인하고 고친 뒤,\n진료실에서 의료진에게 보여 주세요."
+      },
+      {
+        "key": "FOLLOW",
+        "title": "이어가요.",
+        "description": "진료에서 들은 말과 처방을 기록해요.\n다음 진료 일정까지 한곳에서,\n다시 준비할 때 꺼내 볼 수 있어요."
+      }
+    ]
+  },
+  "auth": {
+    "splashTagline": "진료실에서 하고 싶은 말, 미리 정리해요",
+    "splashDelayMs": 1500,
+    "loginTitle": "진료실에서 하고 싶은 말,\n미리 정리해요",
+    "loginSubtitle": "증상을 기억하지 못해도, 말이 잘 안 나와도 괜찮아요.\nAI와 대화하면 진료 전에 정리해드려요.",
+    "loginKakao": "카카오로 시작하기",
+    "loginDisclaimer": "진료메이트가 정리한 내용은 진료를 돕기 위한 참고 자료예요.\n진단이나 처방이 아니니 최종 판단은 의료진과 상의해 주세요."
+  },
+  "intake": {
+    "sessionId": "session-1",
+    "totalSteps": 4,
+    "progressLabel": "증상 정리",
+    "step1": {
+      "key": "BODY_PART",
+      "question": "어디가 아프세요?",
+      "description": "가장 불편한 곳 하나를 짚어주세요. 나머지는 문답에서 여쭤볼게요.",
+      "view": "front",
+      "viewLabel": "앞면",
+      "selection": {
+        "anchor": "복부",
+        "zone": null
+      },
+      "contextChipLabel": "짚은 부위",
+      "contextChipValue": "복부"
+    },
+    "step2": {
+      "key": "SYMPTOM_CHAT",
+      "aiLabel": "AI",
+      "placeholder": "메시지 입력",
+      "sendLabel": "보내기",
+      "waitingLabel": "답변을 준비하고 있어요",
+      "turns": [
+        {
+          "seq": 1,
+          "ai": "복부 쪽이 어떻게 불편하신지 편하게 말씀해 주세요.",
+          "patient": "명치가 불편해요.",
+          "axis": "site"
+        },
+        {
+          "seq": 2,
+          "ai": "언제부터 그러셨어요? 갑자기 시작됐나요, 서서히 시작됐나요?",
+          "patient": "3주 전부터 서서히 시작됐어요.",
+          "axis": "onset"
+        },
+        {
+          "seq": 3,
+          "ai": "어떤 느낌인가요? 예를 들면 욱신거리는지, 찌르는 것 같은지, 조이는 것 같은지요.",
+          "patient": "쓰리고 타는 것 같은 느낌이에요.",
+          "axis": "character"
+        },
+        {
+          "seq": 4,
+          "ai": "처음보다 지금은 어떤가요? 심해졌는지, 비슷한지, 나아졌는지요.",
+          "patient": "처음보다 심해졌어요.",
+          "axis": "time_course"
+        },
+        {
+          "seq": 5,
+          "ai": "어떤 때 더 심해지나요?",
+          "patient": "밥 먹고 30분쯤 지나면 제일 쓰리고, 밤에 누우면 더 심해요.",
+          "axis": "exacerbating_relieving"
+        },
+        {
+          "seq": 6,
+          "ai": "그 불편함이 다른 곳으로 퍼지기도 하나요?",
+          "patient": "아니요, 그 자리에만 있어요.",
+          "axis": "radiation"
+        },
+        {
+          "seq": 7,
+          "ai": "같이 나타나는 다른 증상이 있나요?",
+          "patient": "속이 더부룩하고 트림이 자주 나요.",
+          "axis": "associated"
+        }
+      ],
+      "closingAi": "말씀해 주신 내용을 정리해서 진료 때 보실 수 있게 준비했어요.",
+      "retryPrompt": "조금만 더 말씀해 주실 수 있을까요?",
+      "chatFinished": true,
+      "aiReplyDelayMs": 900
+    },
+    "step3": {
+      "key": "SEVERITY",
+      "question": "복부가 얼마나 아프세요?",
+      "description": "지금 느끼는 정도를 골라주세요.\n정확한 숫자가 아니어도 괜찮아요.",
+      "noticeTitle": "숫자는 진료실에서 의사가 읽어요",
+      "noticeBody": "환자분은 낱말로 고르시면 돼요.\n카드에는 NRS 등가로 함께 표시됩니다.",
+      "scaleLow": "가벼운 불편",
+      "scaleHigh": "매우 심함",
+      "levels": [
+        {
+          "level": 1,
+          "label": "조금 불편해요",
+          "description": "신경 쓰이지만 하던 일은 계속할 수 있어요",
+          "nrs": "NRS 1–2"
+        },
+        {
+          "level": 2,
+          "label": "은근히 아파요",
+          "description": "자꾸 생각나고 집중이 잘 안 돼요",
+          "nrs": "NRS 3–4"
+        },
+        {
+          "level": 3,
+          "label": "꽤 아파요",
+          "description": "하던 일을 멈추게 될 때가 있어요",
+          "nrs": "NRS 5–6"
+        },
+        {
+          "level": 4,
+          "label": "많이 아파요",
+          "description": "일상생활이 어렵고 참기 힘들어요",
+          "nrs": "NRS 7–8"
+        },
+        {
+          "level": 5,
+          "label": "견디기 힘들어요",
+          "description": "잠도 못 자고 아무것도 못 하겠어요",
+          "nrs": "NRS 9–10"
+        }
+      ],
+      "chosenLevel": 3,
+      "chosenAxisValue": "3 (꽤 아파요)"
+    },
+    "step4": {
+      "key": "QUESTIONS",
+      "question": "의사에게 물어볼 것을 적어두세요",
+      "description": "진료실에서 잊지 않고 꺼낼 수 있게\n브리핑 카드 맨 아래에 함께 담아드려요.",
+      "placeholder": "정밀 검사를 받아야 하나요?",
+      "addLabel": "질문 추가",
+      "savedHeader": "적어둔 질문",
+      "aiHint": "AI가 추천하는 질문이에요",
+      "aiSuggested": [
+        {
+          "id": "q-ai-1",
+          "text": "검사를 받아야 하나요?",
+          "source": "RecordDetailFixtures.kt abdomenCard.questions[0] · BriefCardScreen.kt previewBriefCard.questions[0]",
+          "picked": true
+        },
+        {
+          "id": "q-ai-2",
+          "text": "어떤 증상이면 바로 다시 와야 하나요?",
+          "source": "RecordDetailFixtures.kt abdomenCard.questions[2] · BriefCardScreen.kt previewBriefCard.questions[2]",
+          "picked": true
+        },
+        {
+          "id": "q-ai-3",
+          "text": "지금 진통제 계속 먹어도 되나요?",
+          "source": "RecordDetailFixtures.kt abdomenCard.questions[1] — 데모에서는 고르지 않는다(사용자가 직접 입력하는 3번과 겹치므로)",
+          "picked": false
+        }
+      ],
+      "typed": "지금 먹는 진통제를 계속 먹어도 되나요?",
+      "final": [
+        "검사를 받아야 하나요?",
+        "어떤 증상이면 바로 다시 와야 하나요?",
+        "지금 먹는 진통제를 계속 먹어도 되나요?"
+      ]
+    },
+    "done": {
+      "title": "증상 정리가 끝났어요",
+      "description": "말씀하신 내용을 진료실에서 보여줄\n카드로 만들 준비가 됐어요",
+      "primary": "브리핑 카드 만들기",
+      "secondary": "진료받을 병원 먼저 찾기"
+    }
+  },
+  "hospitalSearch": {
+    "title": "병원 찾기",
+    "questionBefore": "진료받을 병원을 찾아주세요",
+    "descriptionBefore": "아직 정하지 않았다면 건너뛰어도 돼요.\n진료 후에 등록할 수 있어요.",
+    "questionAfter": "진료받은 병원을 찾아주세요",
+    "descriptionAfter": "병원 이름으로 검색해 주세요.",
+    "placeholder": "병원 이름 검색",
+    "emptyTitle": "아직 검색 기록이 없어요",
+    "emptyDescription": "병원 명을 입력하면 진료받을 병원을 찾을 수 있어요",
+    "resultCountTemplate": "검색 결과 %d곳",
+    "submitBefore": "브리핑 카드 만들기",
+    "submitAfter": "완료",
+    "query": "서울삼성내과",
+    "fallbackQuery": "삼성내과",
+    "totalCount": 5,
+    "searchDelayMs": 600,
+    "results": [
+      {
+        "name": "서울삼성내과의원",
+        "address": "서울 강남구 테헤란로 152, 3층",
+        "addressSource": "generated-placeholder",
+        "selected": true
+      },
+      {
+        "name": "서울삼성이비인후과의원",
+        "address": "서울 강남구 테헤란로 152, 5층",
+        "addressSource": "generated-placeholder",
+        "selected": false
+      },
+      {
+        "name": "삼성서울내과의원",
+        "address": "서울 서초구 서초대로 301, 2층",
+        "addressSource": "generated-placeholder",
+        "selected": false
+      },
+      {
+        "name": "서울삼성정형외과의원",
+        "address": "서울 송파구 올림픽로 240, 4층",
+        "addressSource": "generated-placeholder",
+        "selected": false
+      },
+      {
+        "name": "삼성내과의원",
+        "address": "서울 마포구 양화로 45, 6층",
+        "addressSource": "generated-placeholder",
+        "selected": false
+      }
+    ]
+  },
+  "briefCard": {
+    "id": "card-1",
+    "title": "복부 통증 · 3주",
+    "status": "BEFORE_VISIT",
+    "statusBadge": "진료 전",
+    "visited": false,
+    "writtenOn": "2026-09-15",
+    "patientLine": "고OO · 34세 남 · 2026.09.15 작성",
+    "aiCaption": "AI가 말씀하신 내용을 정리했어요",
+    "aiTooltip": "말씀하신 내용을 항목별로 정리했어요. 원문도 함께 남아요",
+    "items": [
+      {
+        "axis": "site",
+        "key": "부위",
+        "scenarioLabel": "부위",
+        "value": "명치",
+        "emphasized": false
+      },
+      {
+        "axis": "onset",
+        "key": "시작",
+        "scenarioLabel": "시작",
+        "value": "3주 전부터 서서히",
+        "emphasized": true
+      },
+      {
+        "axis": "character",
+        "key": "양상",
+        "scenarioLabel": "느낌",
+        "value": "쓰리고 타는 것 같은 느낌",
+        "emphasized": false
+      },
+      {
+        "axis": "radiation",
+        "key": "뻗치는 곳",
+        "scenarioLabel": "퍼짐",
+        "value": "그 자리에만 있어요",
+        "emphasized": false
+      },
+      {
+        "axis": "associated",
+        "key": "동반증상",
+        "scenarioLabel": "동반",
+        "value": "속이 더부룩하고 트림이 자주 나요",
+        "emphasized": false
+      },
+      {
+        "axis": "time_course",
+        "key": "경과",
+        "scenarioLabel": "경과",
+        "value": "처음보다 심해졌어요",
+        "emphasized": false
+      },
+      {
+        "axis": "exacerbating_relieving",
+        "key": "심해질 때",
+        "scenarioLabel": "악화",
+        "value": "밥 먹고 30분쯤 지나면 제일 쓰리고, 밤에 누우면 더 심해요",
+        "emphasized": false
+      }
+    ],
+    "health": [
+      {
+        "key": "복용약",
+        "value": "혈압약 · 진통제"
+      },
+      {
+        "key": "기저질환",
+        "value": "고혈압"
+      }
+    ],
+    "itemCount": 9,
+    "severity": {
+      "level": 3,
+      "label": "꽤 아파요",
+      "description": "하던 일을 멈추게 될 때가 있어요",
+      "nrs": "NRS 5–6"
+    },
+    "allergies": [
+      "페니실린"
+    ],
+    "allergyBannerTitle": "알러지 · 페니실린",
+    "allergyBannerBody": "처방 전에 꼭 확인해 주세요",
+    "questionsHeader": "환자가 묻고 싶어 하는 것",
+    "questions": [
+      "검사를 받아야 하나요?",
+      "어떤 증상이면 바로 다시 와야 하나요?",
+      "지금 먹는 진통제를 계속 먹어도 되나요?"
+    ],
+    "hospitalSection": "진료받을 병원",
+    "hospital": {
+      "name": "서울삼성내과의원",
+      "address": "서울 강남구 테헤란로 152, 3층"
+    },
+    "hospitalChangeLabel": "변경",
+    "saveLabel": "저장하기",
+    "scrollOrder": [
+      "알러지",
+      "증상 항목",
+      "통증",
+      "묻고 싶은 것",
+      "진료받을 병원"
+    ]
+  },
+  "appointment": {
+    "id": 1,
+    "clinicName": "서울삼성내과의원",
+    "department": null,
+    "purpose": null,
+    "title": "서울삼성내과의원",
+    "renderedTitle": "서울삼성내과의원 초진",
+    "on": "2026-09-18",
+    "onLabel": "9월 18일 (금)",
+    "time": "10:30",
+    "timeLabel": "오전 10:30",
+    "status": "SCHEDULED",
+    "origin": "MANUAL",
+    "followUp": false,
+    "cards": [
+      {
+        "id": "card-1",
+        "title": "복부 통증 · 3주"
+      }
+    ],
+    "todos": [
+      {
+        "id": "todo-1",
+        "label": "아침 공복으로 가기 (피검사 할 수 있어서)",
+        "done": false
+      },
+      {
+        "id": "todo-2",
+        "label": "먹고 있는 약 사진 찍어두기",
+        "done": false
+      },
+      {
+        "id": "todo-3",
+        "label": "밤에 깬 날짜 메모해 가기",
+        "done": false
+      }
+    ],
+    "defaultTodos": [],
+    "form": {
+      "title": "일정 추가",
+      "hospitalLabel": "병원",
+      "hospitalPlaceholder": "진료받을 병원을 찾아주세요",
+      "datetimeLabel": "날짜 · 시간",
+      "datePlaceholder": "날짜",
+      "timePlaceholder": "시간",
+      "cardsLabel": "가져갈 브리핑 카드",
+      "cardsCount": "1개",
+      "todoLabel": "진료 전 할 일",
+      "todoAdd": "할 일 추가",
+      "todoPlaceholder": "챙길 것을 적어주세요",
+      "save": "저장하기",
+      "dateSheetTitle": "날짜 선택",
+      "timeSheetTitle": "시간 선택",
+      "sheetConfirm": "확인",
+      "pickableCards": [
+        {
+          "id": "card-1",
+          "title": "복부 통증 · 3주",
+          "meta": "09.15 작성 · 서울삼성내과의원",
+          "clinic": "서울삼성내과의원",
+          "picked": true
+        }
+      ]
+    }
+  },
+  "followUpAppointment": {
+    "id": 2,
+    "clinicName": "서울삼성내과의원",
+    "title": "서울삼성내과의원",
+    "renderedTitle": "서울삼성내과의원 재진",
+    "on": "2026-09-25",
+    "onLabel": "9월 25일 (금)",
+    "time": "10:30",
+    "timeLabel": "오전 10:30",
+    "status": "SCHEDULED",
+    "origin": "VISIT_FOLLOW_UP",
+    "followUp": true,
+    "cards": [
+      {
+        "id": "card-1",
+        "title": "복부 통증 · 3주"
+      }
+    ],
+    "todos": []
+  },
+  "clinicConfirm": {
+    "question": "진료 받은 병원이 맞나요?",
+    "description": "9월 18일 (금) 일정에 등록해둔 병원이에요.\n다른 곳에서 진료받았다면 바꿀 수 있어요.",
+    "clinic": "서울삼성내과의원",
+    "address": "서울 강남구 테헤란로 152, 3층",
+    "primary": "이 병원이 맞아요",
+    "secondary": "다른 병원이에요"
+  },
+  "visitNote": {
+    "headline": {
+      "label": "그 날 진료",
+      "dateLabel": "· 9월 18일",
+      "clinic": "서울삼성내과의원",
+      "cardLine": "복부 통증 · 3주 브리핑 카드로 진료받았어요",
+      "visitedOn": "2026-09-18",
+      "today": false
+    },
+    "heading": "진료실에서 들은 말을\n그대로 남겨두세요",
+    "description": "기억나는 대로 편하게 적어주세요.",
+    "placeholder": "3일치 약 처방을 받았어요",
+    "organizeLabel": "AI로 정리하기",
+    "organizeTooltip": "적은 내용을 소견·검사·약·재방문으로 나눠드려요",
+    "voiceLabel": "음성으로 적기",
+    "note": "위염 초기라고 하셨어요. 피검사 했다고 하셨어요. 위산약 2주 처방. 일주일 뒤 재방문이라고 하셨어요.",
+    "loadingMessage": "증상을 정리하고 있어요",
+    "loadingMs": 2200
+  },
+  "classifyResponse": {
+    "sentences": [
+      "위염 초기라고 하셨어요.",
+      "피검사 했다고 하셨어요.",
+      "위산약 2주 처방.",
+      "일주일 뒤 재방문이라고 하셨어요."
+    ],
+    "labels": {
+      "0": "findings",
+      "1": "tests",
+      "2": "medication_instructions",
+      "3": "follow_up"
+    },
+    "axes": {
+      "findings": {
+        "axis": "findings",
+        "status": "FILLED",
+        "value": "위염 초기",
+        "evidence": [
+          "위염 초기라고 하셨어요."
+        ],
+        "source": "AI"
+      },
+      "tests": {
+        "axis": "tests",
+        "status": "FILLED",
+        "value": "피검사 했다",
+        "evidence": [
+          "피검사 했다고 하셨어요."
+        ],
+        "source": "AI"
+      },
+      "medication_instructions": {
+        "axis": "medication_instructions",
+        "status": "FILLED",
+        "value": "위산약 2주",
+        "evidence": [
+          "위산약 2주 처방."
+        ],
+        "source": "AI"
+      },
+      "follow_up": {
+        "axis": "follow_up",
+        "status": "FILLED",
+        "value": "일주일 뒤 재방문",
+        "evidence": [
+          "일주일 뒤 재방문이라고 하셨어요."
+        ],
+        "source": "AI"
+      }
+    },
+    "patientNotes": [],
+    "followUp": {
+      "date": "2026-09-25",
+      "text": "일주일 뒤",
+      "approximate": true
+    }
+  },
+  "visitRecord": {
+    "id": "visit-1",
+    "cardId": "card-1",
+    "clinic": "서울삼성내과의원",
+    "clinicLine": "서울삼성내과의원 · 2026.09.18",
+    "visitedOn": "2026-09-18",
+    "cardTitle": "진료 후 기록",
+    "caption": "AI가 메모를 4가지로 나눴어요",
+    "captionTooltip": "소견·검사·약·재방문으로 나눴어요. 원문 메모도 함께 남아요",
+    "classifiedCount": 4,
+    "items": [
+      {
+        "axis": "findings",
+        "key": "소견",
+        "value": "위염 초기",
+        "tone": "DEFAULT"
+      },
+      {
+        "axis": "tests",
+        "key": "검사",
+        "value": "피검사 했다",
+        "tone": "DEFAULT"
+      },
+      {
+        "axis": "medication_instructions",
+        "key": "약",
+        "value": "위산약 2주",
+        "tone": "DEFAULT"
+      },
+      {
+        "axis": "follow_up",
+        "key": "재방문",
+        "value": "일주일 뒤 재방문 (9월 25일 전후)",
+        "rawValue": "일주일 뒤 재방문",
+        "revisitNote": "(9월 25일 전후)",
+        "tone": "LINK"
+      }
+    ],
+    "memoSectionLabel": "진료 메모",
+    "memoQuoteLabel": "내가 적은 그대로",
+    "memo": "위염 초기라고 하셨어요. 피검사 했다고 하셨어요. 위산약 2주 처방. 일주일 뒤 재방문이라고 하셨어요.",
+    "patientNotes": [],
+    "followUp": {
+      "date": "2026-09-25",
+      "text": "일주일 뒤",
+      "approximate": true
+    },
+    "saveLabel": "저장하기"
+  },
+  "calendar": {
+    "title": "캘린더",
+    "monthLabel": "2026년 9월",
+    "weekdays": [
+      "일",
+      "월",
+      "화",
+      "수",
+      "목",
+      "금",
+      "토"
+    ],
+    "legend": {
+      "record": "기록 있음",
+      "planned": "예정"
+    },
+    "addScheduleLabel": "일정 추가",
+    "cardSheet": {
+      "section": "작성한 브리핑 카드",
+      "hint": "이 카드를 가져갈 일정을 만들 수 있어요",
+      "hintScheduled": "이 카드로 만들어진 일정이 있어요",
+      "openLabel": "일정 보러가기",
+      "scheduleLabel": "이 카드로 일정 만들기"
+    },
+    "snapshots": {
+      "afterCardSaved": {
+        "usedAtStep": 16,
+        "month": "2026-09",
+        "today": "2026-09-15",
+        "selected": "2026-09-15",
+        "recordDays": [
+          15
+        ],
+        "plannedDays": [],
+        "schedules": []
+      },
+      "afterScheduleSaved": {
+        "usedAtStep": 20,
+        "month": "2026-09",
+        "today": "2026-09-15",
+        "selected": "2026-09-18",
+        "recordDays": [
+          15
+        ],
+        "plannedDays": [
+          18
+        ],
+        "schedules": [
+          {
+            "id": "1",
+            "title": "서울삼성내과의원",
+            "renderedTitle": "서울삼성내과의원 초진",
+            "time": "오전 10:30",
+            "detail": "복부 통증 · 3주",
+            "detailLine": "복부 통증 · 3주 브리핑 카드를 가져가요",
+            "dday": 3,
+            "ddayLabel": "D-3",
+            "followUp": false
+          }
+        ]
+      },
+      "afterVisitRecorded": {
+        "usedAtStep": 26,
+        "month": "2026-09",
+        "today": "2026-09-15",
+        "selected": "2026-09-18",
+        "recordDays": [
+          15,
+          18
+        ],
+        "plannedDays": [
+          25
+        ],
+        "schedules": [
+          {
+            "id": "1",
+            "title": "서울삼성내과의원",
+            "renderedTitle": "서울삼성내과의원 초진",
+            "time": "오전 10:30",
+            "detail": "복부 통증 · 3주",
+            "detailLine": "복부 통증 · 3주 브리핑 카드를 가져가요",
+            "dday": 3,
+            "ddayLabel": "진료 완료",
+            "followUp": false
+          }
+        ]
+      }
+    },
+    "cardOnlyDaySheet": {
+      "usedAtStep": 17,
+      "date": "2026-09-15",
+      "card": {
+        "id": "card-1",
+        "title": "복부 통증 · 3주",
+        "writtenOn": "2026-09-15",
+        "itemCount": 9,
+        "visited": false,
+        "clinicAddress": "서울 강남구 테헤란로 152, 3층",
+        "scheduledOn": null,
+        "metaLine": "2026.09.15 · 9항목",
+        "statusBadge": "진료 전"
+      }
+    }
+  },
+  "calendarDay": {
+    "sectionLabels": {
+      "schedule": "이 날 일정",
+      "card": "가져갈 브리핑 카드",
+      "todo": "진료 전 할 일",
+      "record": "이 날 기록",
+      "next": "다음 일정"
+    },
+    "recordEmpty": {
+      "title": "아직 진료 전이에요",
+      "description": "진료가 끝나면 들은 내용을 여기에 기록할 수 있어요",
+      "action": "진료 후 기록하기"
+    },
+    "nextHint": "시간을 정하면 하루 전에 알려드려요",
+    "nextAuto": "진료 후 기록에서 자동으로 만들었어요",
+    "nextConfirm": "시간 정하고 확정하기",
+    "visitedBadge": "진료 완료",
+    "timeUnset": "시간 미정",
+    "beforeVisit": {
+      "usedAtStep": 21,
+      "date": "2026-09-18",
+      "schedule": {
+        "id": "1",
+        "title": "서울삼성내과의원",
+        "renderedTitle": "서울삼성내과의원 초진",
+        "time": "오전 10:30",
+        "detail": "복부 통증 · 3주",
+        "detailLine": "복부 통증 · 3주 브리핑 카드를 가져가요",
+        "dday": 3,
+        "ddayLabel": "D-3",
+        "followUp": false
+      },
+      "card": {
+        "id": "card-1",
+        "title": "복부 통증 · 3주",
+        "writtenOn": "2026-09-15",
+        "itemCount": 9,
+        "visited": false,
+        "metaLine": "2026.09.15 · 9항목",
+        "statusBadge": "진료 전"
+      },
+      "todos": [
+        {
+          "id": "todo-1",
+          "label": "아침 공복으로 가기 (피검사 할 수 있어서)",
+          "done": false
+        },
+        {
+          "id": "todo-2",
+          "label": "먹고 있는 약 사진 찍어두기",
+          "done": false
+        },
+        {
+          "id": "todo-3",
+          "label": "밤에 깬 날짜 메모해 가기",
+          "done": false
+        }
+      ],
+      "records": [],
+      "nextEvent": null
+    },
+    "afterVisitUnconfirmed": {
+      "usedAtStep": 25,
+      "date": "2026-09-18",
+      "schedule": {
+        "id": "1",
+        "title": "서울삼성내과의원",
+        "renderedTitle": "서울삼성내과의원 초진",
+        "time": "오전 10:30",
+        "detail": "복부 통증 · 3주",
+        "detailLine": "복부 통증 · 3주 브리핑 카드를 가져가요",
+        "dday": 3,
+        "ddayLabel": "진료 완료",
+        "followUp": false
+      },
+      "card": {
+        "id": "card-1",
+        "title": "복부 통증 · 3주",
+        "writtenOn": "2026-09-15",
+        "itemCount": 9,
+        "visited": true,
+        "metaLine": "2026.09.15 · 9항목",
+        "statusBadge": "진료 완료"
+      },
+      "todos": [],
+      "records": [
+        {
+          "id": "visit-1",
+          "title": "진료 후 기록",
+          "meta": "위염 초기 · 위산약 2주 · 일주일 뒤 재방문 (9월 25일 전후)",
+          "metaShorthand": "위염 초기 · 위산약 2주 · 09.25 재방문",
+          "metaSource": "meta=RECORD_META_AXES(findings·medication_instructions·follow_up, 각 값의 첫 줄) 규칙 산출값. metaShorthand=시안이 그리는 짧은 꼴(generated). CalendarDayViewModel.DayRecord.filled() 참고"
+        }
+      ],
+      "nextEvent": {
+        "chip": "9월 25일 (금) 전후",
+        "title": "서울삼성내과의원 재방문",
+        "on": "2026-09-25",
+        "at": null,
+        "clinic": "서울삼성내과의원",
+        "cardId": "card-1",
+        "followUp": true,
+        "appointmentId": null,
+        "hint": "시간을 정하면 하루 전에 알려드려요",
+        "autoNote": "진료 후 기록에서 자동으로 만들었어요",
+        "confirmLabel": "시간 정하고 확정하기"
+      }
+    },
+    "afterVisitConfirmed": {
+      "usedAtStep": 26,
+      "date": "2026-09-18",
+      "schedule": {
+        "id": "1",
+        "title": "서울삼성내과의원",
+        "renderedTitle": "서울삼성내과의원 초진",
+        "time": "오전 10:30",
+        "detail": "복부 통증 · 3주",
+        "detailLine": "복부 통증 · 3주 브리핑 카드를 가져가요",
+        "dday": 3,
+        "ddayLabel": "진료 완료",
+        "followUp": false
+      },
+      "card": {
+        "id": "card-1",
+        "title": "복부 통증 · 3주",
+        "writtenOn": "2026-09-15",
+        "itemCount": 9,
+        "visited": true,
+        "metaLine": "2026.09.15 · 9항목",
+        "statusBadge": "진료 완료"
+      },
+      "todos": [],
+      "records": [
+        {
+          "id": "visit-1",
+          "title": "진료 후 기록",
+          "meta": "위염 초기 · 위산약 2주 · 일주일 뒤 재방문 (9월 25일 전후)",
+          "metaShorthand": "위염 초기 · 위산약 2주 · 09.25 재방문",
+          "metaSource": "meta=RECORD_META_AXES(findings·medication_instructions·follow_up, 각 값의 첫 줄) 규칙 산출값. metaShorthand=시안이 그리는 짧은 꼴(generated). CalendarDayViewModel.DayRecord.filled() 참고"
+        }
+      ],
+      "nextEvent": {
+        "chip": "D-10",
+        "chipScenario": "D-7",
+        "chipNote": "앱은 today(2026-09-15)와 일정일(2026-09-25)의 차이로 계산한다 → D-10. 시나리오 26번은 진료일(09-18) 기준으로 적혀 D-7이다. 어느 쪽을 쓸지 정해야 한다.",
+        "title": "서울삼성내과의원",
+        "renderedTitle": "서울삼성내과의원 재방문",
+        "on": "2026-09-25",
+        "at": "9월 25일 (금) 오전 10:30",
+        "clinic": "서울삼성내과의원",
+        "cardId": "card-1",
+        "followUp": true,
+        "appointmentId": 2
+      }
+    }
+  },
+  "home": {
+    "labels": {
+      "todayLabel": "오늘의 한 줄",
+      "startIntake": "증상 정리 시작하기",
+      "savedCards": "최근 브리핑 카드",
+      "savedCardsAll": "전체 보기",
+      "upcoming": "다가오는 일정",
+      "notification": "알림",
+      "profile": "내 정보",
+      "cardConfirmed": "진료 완료"
+    },
+    "empty": {
+      "usedAtStep": 8,
+      "userInitial": "고",
+      "hasUnreadNotification": false,
+      "todayLine": {
+        "kind": "FirstVisit",
+        "label": "처음 오셨네요",
+        "title": "아픈 곳을 말로 편하게 알려주세요",
+        "body": "언제부터, 얼마나 아픈지 하나씩 물어볼게요.\n답변은 진료실에서 보여줄 카드로 정리돼요."
+      },
+      "resume": null,
+      "savedCards": [],
+      "upcoming": [],
+      "emptyTitle": "아직 진료 기록이 없어요",
+      "emptyDescription": "증상을 정리해두면 진료실에서 바로 보여줄 수 있어요",
+      "emptyAction": "증상 정리하기"
+    },
+    "afterCardSaved": {
+      "usedAtStep": 15,
+      "userInitial": "고",
+      "hasUnreadNotification": false,
+      "todayLine": {
+        "kind": "CardReady",
+        "label": "오늘의 한 줄",
+        "title": "브리핑 카드가 준비돼 있어요",
+        "lead": "진료 날짜가 정해지면 캘린더에 등록해두세요.",
+        "body": "진료실에서는 이 카드를 그대로 보여주면 돼요."
+      },
+      "resume": null,
+      "savedCards": [
+        {
+          "id": "card-1",
+          "title": "복부 통증 · 3주",
+          "visited": false,
+          "writtenOn": "2026-09-15",
+          "clinic": "서울삼성내과의원",
+          "metaLine": "2026.09.15 · 서울삼성내과의원"
+        }
+      ],
+      "upcoming": []
+    },
+    "afterScheduleSaved": {
+      "usedAtStep": 27,
+      "userInitial": "고",
+      "hasUnreadNotification": false,
+      "todayLine": {
+        "kind": "NextInDays",
+        "days": 3,
+        "on": "2026-09-18",
+        "clinic": "서울삼성내과의원",
+        "label": "오늘의 한 줄",
+        "title": "다음 진료가 3일 남았어요",
+        "lead": "9월 18일 (금) 서울삼성내과의원예요.",
+        "body": "달라진 점이 있으면 카드를 미리 손봐두세요."
+      },
+      "resume": null,
+      "savedCards": [
+        {
+          "id": "card-1",
+          "title": "복부 통증 · 3주",
+          "visited": false,
+          "writtenOn": "2026-09-15",
+          "clinic": "서울삼성내과의원",
+          "metaLine": "2026.09.15 · 서울삼성내과의원"
+        }
+      ],
+      "upcoming": [
+        {
+          "id": "1",
+          "title": "서울삼성내과의원",
+          "renderedTitle": "서울삼성내과의원 초진",
+          "date": "2026-09-18",
+          "time": "오전 10:30",
+          "dday": "D-3",
+          "followUp": false
+        }
+      ]
+    }
+  },
+  "recordList": {
+    "title": "기록",
+    "countTemplate": "%d건",
+    "editLabel": "편집",
+    "statusLabels": {
+      "DRAFT": "작성 중",
+      "BEFORE_VISIT": "진료 전",
+      "CONFIRMED": "진료 완료"
+    },
+    "emptyTitle": "아직 진료 기록이 없어요",
+    "emptyDescription": "증상을 정리해두면 진료실에서 바로 보여줄 수 있어요",
+    "emptyAction": "증상 정리하기",
+    "usedAtStep": 27,
+    "groups": [
+      {
+        "monthLabel": "2026년 9월",
+        "items": [
+          {
+            "id": "visit-1",
+            "cardId": "card-1",
+            "title": "복부 통증 · 3주",
+            "status": "CONFIRMED",
+            "statusLabel": "진료 완료",
+            "clinic": "서울삼성내과의원",
+            "meta": "09.18 진료 · 서울삼성내과의원",
+            "detail": "위염 초기 · 위산약 2주 · 09.25 재방문",
+            "detailSource": "generated — 서버 VisitSummaryResponse에 없는 값이라 웹 목데이터가 채운다. 일자 화면 meta(규칙값)와 달라도 된다",
+            "resumeLabel": null
+          }
+        ]
+      }
+    ]
+  },
+  "recordDetail": {
+    "title": "기록 상세",
+    "expandLabel": "카드 전체 보기",
+    "collapseLabel": "접기",
+    "usedAtStep": 28,
+    "detail": {
+      "id": "card-1",
+      "title": "복부 통증 · 3주",
+      "status": "CONFIRMED",
+      "statusLabel": "진료 완료",
+      "badge": null,
+      "clinicLine": "서울삼성내과의원 · 09.18 진료",
+      "steps": [
+        {
+          "type": "Pending",
+          "at": "09.25 예정",
+          "message": "다음 진료가 예약돼 있어요",
+          "detail": "9월 25일 (금) 오전 10:30"
+        },
+        {
+          "type": "Block",
+          "at": "09.18 · 진료 후 기록",
+          "title": "진료 후 기록",
+          "items": [
+            {
+              "key": "소견",
+              "value": "위염 초기",
+              "tone": "DEFAULT"
+            },
+            {
+              "key": "검사",
+              "value": "피검사 했다",
+              "tone": "DEFAULT"
+            },
+            {
+              "key": "약",
+              "value": "위산약 2주",
+              "tone": "DEFAULT"
+            },
+            {
+              "key": "재방문",
+              "value": "일주일 뒤 재방문 (9월 25일 전후)",
+              "tone": "LINK"
+            }
+          ],
+          "card": null
+        },
+        {
+          "type": "Block",
+          "at": "09.15 작성",
+          "title": "브리핑 카드",
+          "items": [
+            {
+              "key": "부위",
+              "value": "명치",
+              "tone": "DEFAULT"
+            },
+            {
+              "key": "시작",
+              "value": "3주 전부터 서서히",
+              "tone": "LINK"
+            },
+            {
+              "key": "양상",
+              "value": "쓰리고 타는 것 같은 느낌",
+              "tone": "DEFAULT"
+            },
+            {
+              "key": "뻗치는 곳",
+              "value": "그 자리에만 있어요",
+              "tone": "DEFAULT"
+            },
+            {
+              "key": "동반증상",
+              "value": "속이 더부룩하고 트림이 자주 나요",
+              "tone": "DEFAULT"
+            },
+            {
+              "key": "경과",
+              "value": "처음보다 심해졌어요",
+              "tone": "DEFAULT"
+            },
+            {
+              "key": "심해질 때",
+              "value": "밥 먹고 30분쯤 지나면 제일 쓰리고, 밤에 누우면 더 심해요",
+              "tone": "DEFAULT"
+            },
+            {
+              "key": "복용약",
+              "value": "혈압약 · 진통제",
+              "tone": "DEFAULT"
+            },
+            {
+              "key": "기저질환",
+              "value": "고혈압",
+              "tone": "DEFAULT"
+            }
+          ],
+          "card": {
+            "collapsedItemCount": 3,
+            "severity": {
+              "level": 3,
+              "label": "꽤 아파요",
+              "nrs": "NRS 5–6"
+            },
+            "allergies": [
+              "페니실린"
+            ],
+            "questions": [
+              "검사를 받아야 하나요?",
+              "어떤 증상이면 바로 다시 와야 하나요?",
+              "지금 먹는 진통제를 계속 먹어도 되나요?"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "stepStates": [
+    {
+      "step": 1,
+      "screen": "splash",
+      "state": "auth.splashTagline"
+    },
+    {
+      "step": 2,
+      "screen": "login",
+      "state": "auth"
+    },
+    {
+      "step": 3,
+      "screen": "onboarding",
+      "state": "onboarding.pages[0..2]"
+    },
+    {
+      "step": 4,
+      "screen": "onboarding",
+      "state": "onboarding.pages[3]"
+    },
+    {
+      "step": 5,
+      "screen": "profileSetup",
+      "state": "profileSetup.steps[0]"
+    },
+    {
+      "step": 6,
+      "screen": "profileSetup",
+      "state": "profileSetup.steps[1]"
+    },
+    {
+      "step": 7,
+      "screen": "profileSetup",
+      "state": "profileSetup.steps[2] → profileSetup.complete"
+    },
+    {
+      "step": 8,
+      "screen": "home",
+      "state": "home.empty"
+    },
+    {
+      "step": 9,
+      "screen": "intake/body",
+      "state": "intake.step1"
+    },
+    {
+      "step": 10,
+      "screen": "intake/chat",
+      "state": "intake.step2"
+    },
+    {
+      "step": 11,
+      "screen": "intake/severity",
+      "state": "intake.step3"
+    },
+    {
+      "step": 12,
+      "screen": "intake/questions",
+      "state": "intake.step4"
+    },
+    {
+      "step": 13,
+      "screen": "intake/done",
+      "state": "intake.done"
+    },
+    {
+      "step": 14,
+      "screen": "hospitalPick",
+      "state": "hospitalSearch"
+    },
+    {
+      "step": 15,
+      "screen": "briefCard → home",
+      "state": "briefCard → home.afterCardSaved"
+    },
+    {
+      "step": 16,
+      "screen": "calendarMonth",
+      "state": "calendar.snapshots.afterCardSaved"
+    },
+    {
+      "step": 17,
+      "screen": "calendarMonth + sheet",
+      "state": "calendar.cardOnlyDaySheet"
+    },
+    {
+      "step": 18,
+      "screen": "scheduleAdd",
+      "state": "appointment.form"
+    },
+    {
+      "step": 19,
+      "screen": "scheduleAdd",
+      "state": "appointment (date/time 채움)"
+    },
+    {
+      "step": 20,
+      "screen": "scheduleAdd → calendarMonth",
+      "state": "appointment.todos → calendar.snapshots.afterScheduleSaved"
+    },
+    {
+      "step": 21,
+      "screen": "calendarDay",
+      "state": "calendarDay.beforeVisit"
+    },
+    {
+      "step": 22,
+      "screen": "clinicConfirm",
+      "state": "clinicConfirm"
+    },
+    {
+      "step": 23,
+      "screen": "visitNote",
+      "state": "visitNote (빈 입력)"
+    },
+    {
+      "step": 24,
+      "screen": "visitNote → loading",
+      "state": "visitNote.note → classifyResponse"
+    },
+    {
+      "step": 25,
+      "screen": "visitRecord → calendarDay",
+      "state": "visitRecord → calendarDay.afterVisitUnconfirmed"
+    },
+    {
+      "step": 26,
+      "screen": "scheduleAdd(시간) → calendarDay",
+      "state": "followUpAppointment → calendarDay.afterVisitConfirmed"
+    },
+    {
+      "step": 27,
+      "screen": "recordList",
+      "state": "recordList"
+    },
+    {
+      "step": 28,
+      "screen": "recordDetail",
+      "state": "recordDetail (접힘)"
+    },
+    {
+      "step": 29,
+      "screen": "recordDetail",
+      "state": "recordDetail (브리핑 카드 단계 펼침)"
+    },
+    {
+      "step": 30,
+      "screen": "recordList",
+      "state": "recordList"
+    }
+  ],
+  "appFixtures": {
+    "_note": "Android 소스에 이미 들어 있는 원본 픽스처 값. 데모에는 쓰지 않지만 컴포넌트 Storybook·빈 상태 확인용으로 그대로 옮겨 둔다. 출처는 각 항목의 source 필드.",
+    "calendar": {
+      "source": "calendar/ui/CalendarFixtures.kt",
+      "visitDate": "2026-09-12",
+      "cardDate": "2026-09-04",
+      "pastVisitDate": "2026-09-02",
+      "recordDays": [
+        2,
+        4
+      ],
+      "plannedDays": [
+        12,
+        26
+      ],
+      "previewToday": "2026-09-07",
+      "card": {
+        "id": "card-1",
+        "title": "복부 통증 · 3주",
+        "writtenOn": "2026-09-04",
+        "itemCount": 5,
+        "visited": false
+      },
+      "visitedCard": {
+        "id": "card-1",
+        "title": "복부 통증 · 3주",
+        "writtenOn": "2026-09-04",
+        "itemCount": 5,
+        "visited": true
+      },
+      "record": {
+        "id": "card-1",
+        "title": "진료 후 기록",
+        "meta": "위염 초기 · 2주 약 · 09.26 재방문"
+      },
+      "nextEvent": {
+        "chip": "9월 26일 (토)",
+        "title": "재방문 예정",
+        "on": "2026-09-26",
+        "clinic": "서울OO병원 내과",
+        "at": null
+      },
+      "nextEventConfirmed": {
+        "chip": "D-14",
+        "title": "서울OO병원 내과 재방문",
+        "on": "2026-09-26",
+        "at": "9월 26일 (토) 오전 10:30"
+      },
+      "todos": [
+        {
+          "id": "todo-1",
+          "label": "달라진 증상 있으면 카드 수정",
+          "done": true
+        },
+        {
+          "id": "todo-2",
+          "label": "복용 중인 약 챙기기",
+          "done": false
+        },
+        {
+          "id": "todo-3",
+          "label": "지난 검사 결과 사진 준비",
+          "done": false
+        }
+      ],
+      "schedules": {
+        "2026-09-12": {
+          "id": "visit-1",
+          "title": "서울OO병원 내과 재진",
+          "time": "오전 10:30",
+          "detail": "복부 통증 브리핑 카드를 가져가요"
+        },
+        "2026-09-02": {
+          "id": "visit-0",
+          "title": "서울OO병원 내과 초진",
+          "time": "오전 9:30",
+          "detail": "복부 통증 브리핑 카드를 가져갔어요"
+        }
+      }
+    },
+    "visit": {
+      "source": "visit/ui/VisitFixtures.kt",
+      "headline": {
+        "visitedOn": "2026-09-12",
+        "clinic": "서울OO병원 내과",
+        "cardTitle": "복부 통증 · 3주"
+      },
+      "note": "위염 초기라고 하셨고, 2주 약 먹고 다시 오라고 했어요. 커피랑 매운 거 줄이라고. 피검사는 다음에 결과 보자고 하셨음.",
+      "record": {
+        "id": "visit-1",
+        "clinic": "서울OO병원 내과",
+        "clinicLine": "서울OO병원 내과 · 2026.09.12",
+        "classifiedCount": 4,
+        "items": [
+          {
+            "key": "소견",
+            "value": "위염 초기 소견"
+          },
+          {
+            "key": "검사",
+            "value": "혈액검사 시행\n결과는 다음 방문 때 확인"
+          },
+          {
+            "key": "약",
+            "value": "2주분 처방\n커피·매운 음식 줄이기"
+          },
+          {
+            "key": "재방문",
+            "value": "2주 뒤 재방문 (9월 26일 전후)",
+            "tone": "LINK"
+          }
+        ]
+      }
+    },
+    "briefCard": {
+      "source": "card/ui/BriefCardScreen.kt previewBriefCard",
+      "id": "card-1",
+      "title": "복부 통증 · 3주",
+      "status": "BEFORE_VISIT",
+      "patientLine": "김OO · 32세 여 · 2026.09.04 작성",
+      "items": [
+        {
+          "key": "부위",
+          "value": "복부 (명치 아래 · 배꼽 위)"
+        },
+        {
+          "key": "기간",
+          "value": "3주 전 시작 · 최근 악화",
+          "emphasized": true
+        },
+        {
+          "key": "양상",
+          "value": "식후 30분 뒤 쓰림 · 밤에 심해짐"
+        },
+        {
+          "key": "복용약",
+          "value": "혈압약 · 진통제(증상 시)"
+        },
+        {
+          "key": "기저질환",
+          "value": "고혈압"
+        }
+      ],
+      "severity": 3,
+      "allergies": [
+        "페니실린"
+      ],
+      "questions": [
+        "검사를 받아야 하나요?",
+        "지금 진통제 계속 먹어도 되나요?",
+        "어떤 증상이면 바로 다시 와야 하나요?"
+      ],
+      "hospital": {
+        "name": "서울OO병원 내과"
+      }
+    },
+    "home": {
+      "source": "home/ui/HomePreviews.kt",
+      "previewToday": "2026-09-07",
+      "userInitial": "김",
+      "hasUnreadNotification": true,
+      "todayLine": {
+        "kind": "NextInDays",
+        "days": 2,
+        "on": "2026-09-16",
+        "clinic": "서울OO병원 내과"
+      },
+      "resume": {
+        "intakeId": "intake-1",
+        "symptomTitle": "복부 통증",
+        "step": "SYMPTOM_CHAT"
+      },
+      "savedCards": [
+        {
+          "id": "card-1",
+          "title": "복부 통증 · 3주",
+          "visited": true,
+          "writtenOn": "2026-09-04",
+          "clinic": "서울OO병원 내과"
+        },
+        {
+          "id": "card-2",
+          "title": "두통 · 잦은 어지러움",
+          "visited": false,
+          "writtenOn": "2026-08-21",
+          "clinic": null
+        }
+      ],
+      "upcoming": [
+        {
+          "id": "visit-1",
+          "title": "서울OO병원 내과 재진",
+          "date": "2026-09-12",
+          "time": "오전 10:30"
+        }
+      ]
+    },
+    "intakeChat": {
+      "source": "intake/ui/IntakeScreen.kt previewChatState (Figma 1c-1)",
+      "bodyPart": "복부",
+      "messages": [
+        {
+          "id": 0,
+          "sender": "AI",
+          "text": "복부가 불편하시군요. 언제부터 그러셨어요? 정확하지 않아도 괜찮아요."
+        },
+        {
+          "id": 1,
+          "sender": "PATIENT",
+          "text": "한 3주쯤 됐어요. 요즘 더 아파요."
+        },
+        {
+          "id": 2,
+          "sender": "AI",
+          "text": "3주 전부터 점점 심해지셨네요. 어떨 때 더 아프세요?"
+        },
+        {
+          "id": 3,
+          "sender": "PATIENT",
+          "text": "밥 먹고 30분쯤 지나면 명치가 쓰려요."
+        },
+        {
+          "id": 4,
+          "sender": "AI",
+          "text": "명치가 얼마나 아프세요?"
+        }
+      ],
+      "questions": [
+        "검사를 받아야 하나요?",
+        "지금 진통제 계속 먹어도 되나요?",
+        "어떤 증상이면 바로 다시 와야 하나요?"
+      ],
+      "bodyZonePreview": {
+        "focus": "ANC:014",
+        "side": "LEFT",
+        "surface": "SUR:091",
+        "note": "무릎을 짚기 직전 상태"
+      }
+    },
+    "hospitals": {
+      "source": "visit/ui/HospitalPickScreen.kt previewHospitals",
+      "query": "서울OO병원",
+      "results": [
+        "서울OO병원 내과",
+        "서울OO병원 이비인후과",
+        "OO이비인후과의원",
+        "OO정형외과의원"
+      ]
+    },
+    "clinicConfirm": {
+      "source": "visit/ui/ClinicConfirmScreen.kt",
+      "clinic": "서울OO병원 내과",
+      "address": "서울 관악구 남부순환로 1820, 3층",
+      "scheduledOn": "2026-09-12"
+    },
+    "scheduleAdd": {
+      "source": "calendar/ui/ScheduleAddViewModel.kt previewScheduleAddState (1r-4-C)",
+      "cards": [
+        {
+          "id": "card-1",
+          "title": "복부 통증 · 3주",
+          "meta": "09.04 작성 · 서울OO병원 내과",
+          "picked": true
+        },
+        {
+          "id": "card-2",
+          "title": "두통 · 잦은 어지러움",
+          "meta": "08.21 작성 · 병원 미정",
+          "picked": false
+        }
+      ],
+      "todos": [
+        {
+          "id": "todo-1",
+          "label": "달라진 증상 있으면 카드 수정",
+          "done": true
+        },
+        {
+          "id": "todo-2",
+          "label": "복용 중인 약 챙기기",
+          "done": false
+        }
+      ],
+      "hospital": "서울OO병원 내과",
+      "date": "2026-09-26",
+      "time": "10:30"
+    },
+    "recordGroups": {
+      "source": "card/ui/RecordViewModel.kt previewRecordGroups (1j-1)",
+      "groups": [
+        {
+          "monthLabel": "2026년 9월",
+          "items": [
+            {
+              "id": "card-3",
+              "title": "무릎 통증",
+              "status": "DRAFT",
+              "meta": "오늘 · 증상 문답 4단계 중 2단계",
+              "resumeLabel": "이어서 정리하기"
+            },
+            {
+              "id": "card-2",
+              "title": "두통 · 잦은 어지러움",
+              "status": "BEFORE_VISIT",
+              "meta": "08.21 작성 · 병원 미정",
+              "detail": "묻고 싶은 것 3개 · 통증 2단계"
+            },
+            {
+              "id": "card-1",
+              "title": "복부 통증 · 3주",
+              "status": "CONFIRMED",
+              "meta": "09.12 진료 · 서울OO병원 내과",
+              "detail": "위염 초기 · 2주 약 · 09.26 재방문"
+            }
+          ]
+        },
+        {
+          "monthLabel": "2026년 7월",
+          "items": [
+            {
+              "id": "card-0",
+              "title": "목 통증 · 삼킬 때 아픔",
+              "status": "CONFIRMED",
+              "meta": "07.18 진료 · OO이비인후과",
+              "detail": "인후염 · 5일 약 · 재방문 없음"
+            }
+          ]
+        }
+      ]
+    },
+    "briefCardGroups": {
+      "source": "card/ui/BriefCardListViewModel.kt previewBriefCardGroups (1j-4)",
+      "groups": [
+        {
+          "monthLabel": "2026년 9월",
+          "items": [
+            {
+              "id": "card-1",
+              "title": "복부 통증 · 3주",
+              "status": "CONFIRMED",
+              "meta": "09.04 작성 · 서울OO병원 내과",
+              "detail": "부위 · 기간 · 양상 · 복용약 · 기저질환"
+            },
+            {
+              "id": "card-3",
+              "title": "무릎 통증",
+              "status": "DRAFT",
+              "meta": "오늘 · 4단계 중 2단계",
+              "resumeLabel": "이어서 정리하기"
+            }
+          ]
+        },
+        {
+          "monthLabel": "2026년 8월",
+          "items": [
+            {
+              "id": "card-2",
+              "title": "두통 · 잦은 어지러움",
+              "status": "BEFORE_VISIT",
+              "meta": "08.21 작성 · 병원 미정",
+              "detail": "부위 · 기간 · 양상 · 질문 3개"
+            }
+          ]
+        }
+      ]
+    },
+    "recordDetails": {
+      "source": "card/ui/RecordDetailFixtures.kt recordDetailFixtures",
+      "card-1": {
+        "title": "복부 통증 · 3주",
+        "status": "CONFIRMED",
+        "clinicLine": "서울OO병원 내과 · 09.12 진료",
+        "steps": [
+          {
+            "type": "Pending",
+            "at": "09.26 예정",
+            "message": "다음 진료가 예약돼 있어요",
+            "detail": "9월 26일 (토) 오전 10:30"
+          },
+          {
+            "type": "Block",
+            "at": "09.12 · 진료 후 기록",
+            "title": "진료 후 기록",
+            "items": [
+              {
+                "key": "소견",
+                "value": "위염 초기 소견"
+              },
+              {
+                "key": "검사",
+                "value": "혈액검사 시행 · 다음 방문 때 확인"
+              },
+              {
+                "key": "약",
+                "value": "2주분 처방 · 커피·매운 음식 줄이기"
+              },
+              {
+                "key": "재방문",
+                "value": "2주 뒤 (9월 26일 전후)",
+                "tone": "LINK"
+              }
+            ]
+          },
+          {
+            "type": "Block",
+            "at": "09.04 작성",
+            "title": "브리핑 카드",
+            "items": [
+              {
+                "key": "부위",
+                "value": "복부 (명치 아래 · 배꼽 위)"
+              },
+              {
+                "key": "기간",
+                "value": "3주 전 시작 · 최근 악화",
+                "tone": "LINK"
+              },
+              {
+                "key": "양상",
+                "value": "식후 30분 뒤 쓰림 · 밤에 심해짐"
+              },
+              {
+                "key": "복용약",
+                "value": "혈압약 · 진통제(증상 시)"
+              },
+              {
+                "key": "기저질환",
+                "value": "고혈압"
+              }
+            ],
+            "card": {
+              "collapsedItemCount": 3,
+              "severity": 3,
+              "allergies": [
+                "페니실린"
+              ],
+              "questions": [
+                "검사를 받아야 하나요?",
+                "지금 진통제 계속 먹어도 되나요?",
+                "어떤 증상이면 바로 다시 와야 하나요?"
+              ]
+            }
+          }
+        ]
+      },
+      "card-2": {
+        "title": "두통 · 잦은 어지러움",
+        "status": "BEFORE_VISIT",
+        "clinicLine": "08.21 작성 · 병원 미정",
+        "steps": [
+          {
+            "type": "Pending",
+            "at": "진료 예정",
+            "message": "병원을 정하면 진료 일정이 여기에 표시돼요"
+          },
+          {
+            "type": "Block",
+            "at": "08.21 작성",
+            "title": "브리핑 카드",
+            "items": [
+              {
+                "key": "부위",
+                "value": "머리 (관자놀이 양쪽)"
+              },
+              {
+                "key": "기간",
+                "value": "2주 전 시작 · 잦아짐"
+              },
+              {
+                "key": "양상",
+                "value": "일어설 때 핑 돌고 욱신거림"
+              },
+              {
+                "key": "복용약",
+                "value": "혈압약"
+              },
+              {
+                "key": "기저질환",
+                "value": "고혈압"
+              }
+            ],
+            "card": {
+              "collapsedItemCount": 3,
+              "severity": 2,
+              "allergies": [
+                "페니실린"
+              ],
+              "questions": [
+                "혈압약과 관련이 있나요?",
+                "검사를 받아야 하나요?",
+                "어떤 증상이면 바로 다시 와야 하나요?"
+              ]
+            }
+          }
+        ]
+      },
+      "card-3": {
+        "title": "무릎 통증",
+        "status": "DRAFT",
+        "clinicLine": "오늘 작성 중 · 4단계 중 2단계",
+        "steps": [
+          {
+            "type": "Pending",
+            "at": "카드 예정",
+            "message": "증상 정리를 마치면 브리핑 카드가 만들어져요"
+          }
+        ]
+      },
+      "card-0": {
+        "title": "목 통증 · 삼킬 때 아픔",
+        "status": "CONFIRMED",
+        "clinicLine": "OO이비인후과 · 07.18 진료",
+        "steps": [
+          {
+            "type": "Block",
+            "at": "07.18 · 진료 후 기록",
+            "title": "진료 후 기록",
+            "items": [
+              {
+                "key": "소견",
+                "value": "인후염"
+              },
+              {
+                "key": "약",
+                "value": "5일분 처방"
+              },
+              {
+                "key": "재방문",
+                "value": "없음 · 안 나으면 다시 오기"
+              }
+            ]
+          },
+          {
+            "type": "Block",
+            "at": "07.17 작성",
+            "title": "브리핑 카드",
+            "items": [
+              {
+                "key": "부위",
+                "value": "목 (삼킬 때 안쪽)"
+              },
+              {
+                "key": "기간",
+                "value": "3일 전 시작"
+              },
+              {
+                "key": "양상",
+                "value": "삼킬 때 찌르듯 아픔"
+              },
+              {
+                "key": "복용약",
+                "value": "없음"
+              },
+              {
+                "key": "기저질환",
+                "value": "고혈압"
+              }
+            ],
+            "card": {
+              "collapsedItemCount": 3,
+              "severity": 2,
+              "allergies": [
+                "페니실린"
+              ],
+              "questions": [
+                "며칠이면 나아요?",
+                "항생제를 꼭 먹어야 하나요?"
+              ]
+            }
+          }
+        ]
+      },
+      "card-4": {
+        "title": "복부 통증 · 3주",
+        "status": "CONFIRMED",
+        "badge": "진료 2회",
+        "clinicLine": "서울OO병원 내과 · 09.12 초진 · 09.26 재방문",
+        "steps": [
+          {
+            "type": "Block",
+            "at": "09.26 · 진료 후 기록 · 재방문",
+            "title": "진료 후 기록",
+            "items": [
+              {
+                "key": "소견",
+                "value": "염증 호전 · 경과 양호"
+              },
+              {
+                "key": "검사",
+                "value": "혈액검사 정상 범위"
+              },
+              {
+                "key": "약",
+                "value": "1주분 추가 처방"
+              },
+              {
+                "key": "재방문",
+                "value": "증상 재발 시에만"
+              }
+            ]
+          },
+          {
+            "type": "Block",
+            "at": "09.12 · 진료 후 기록 · 초진",
+            "title": "진료 후 기록",
+            "items": [
+              {
+                "key": "소견",
+                "value": "위염 초기 소견"
+              },
+              {
+                "key": "검사",
+                "value": "혈액검사 시행 · 다음 방문 때 확인"
+              },
+              {
+                "key": "약",
+                "value": "2주분 처방\n커피·매운 음식 줄이기"
+              },
+              {
+                "key": "재방문",
+                "value": "2주 뒤 (9월 26일 전후)",
+                "tone": "LINK"
+              }
+            ]
+          },
+          {
+            "type": "Block",
+            "at": "09.04 작성",
+            "title": "브리핑 카드",
+            "items": [
+              {
+                "key": "부위",
+                "value": "복부 (명치 아래 · 배꼽 위)"
+              },
+              {
+                "key": "기간",
+                "value": "3주 전 시작 · 최근 악화",
+                "tone": "LINK"
+              },
+              {
+                "key": "양상",
+                "value": "식후 30분 뒤 쓰림 · 밤에 심해짐"
+              },
+              {
+                "key": "복용약",
+                "value": "혈압약 · 진통제(증상 시)"
+              },
+              {
+                "key": "기저질환",
+                "value": "고혈압"
+              }
+            ],
+            "card": {
+              "collapsedItemCount": 3,
+              "severity": 3,
+              "allergies": [
+                "페니실린"
+              ],
+              "questions": [
+                "검사를 받아야 하나요?",
+                "지금 진통제 계속 먹어도 되나요?",
+                "어떤 증상이면 바로 다시 와야 하나요?"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "myProfile": {
+      "source": "profile/ui/MyProfileViewModel.kt previewMyProfile (1s-1)",
+      "profile": {
+        "initial": "김",
+        "name": "김OO",
+        "birthYear": 1994,
+        "sex": "FEMALE"
+      },
+      "health": {
+        "medications": [
+          "혈압약",
+          "진통제(증상 시)"
+        ],
+        "conditions": [
+          "고혈압"
+        ],
+        "allergies": [
+          "페니실린"
+        ]
+      }
+    },
+    "healthEdit": {
+      "source": "profile/ui/HealthEditViewModel.kt previewHealthEdit (1s-2)",
+      "chosen": {
+        "MEDICATIONS": [
+          "혈압약",
+          "진통제"
+        ],
+        "CONDITIONS": [
+          "고혈압"
+        ],
+        "ALLERGIES": [
+          "페니실린"
+        ]
+      }
+    },
+    "designSystem": {
+      "source": "core/designsystem/component/*Previews.kt",
+      "kvRows": [
+        {
+          "key": "기간",
+          "value": "3주 전 시작"
+        },
+        {
+          "key": "가장 아픈 곳",
+          "value": "오른쪽 손가락 관절"
+        },
+        {
+          "key": "복용 약",
+          "value": "타이레놀 500mg"
+        }
+      ],
+      "listRows": [
+        {
+          "title": "손가락 경직·부종",
+          "meta": "06.20 작성"
+        },
+        {
+          "title": "재방문·검사 결과",
+          "meta": "09.01 작성",
+          "badge": "이어서 작성"
+        },
+        {
+          "title": "누를 수 없는 행",
+          "meta": "chevron 없음"
+        }
+      ],
+      "doctorRows": [
+        {
+          "name": "김민수",
+          "specialty": "정형외과",
+          "hours": "오늘 18:00까지",
+          "statusLabel": "진료 중"
+        },
+        {
+          "name": "이서연",
+          "specialty": "내과",
+          "hours": "내일 09:00 진료 시작",
+          "statusLabel": "진료 종료"
+        }
+      ],
+      "bubbles": [
+        {
+          "sender": "AI",
+          "text": "언제부터 그러셨어요? 정확하지 않아도 괜찮아요."
+        },
+        {
+          "sender": "PATIENT",
+          "text": "한 3주쯤 됐어요. 요즘 더 아파요."
+        }
+      ],
+      "editableField": {
+        "fieldLabel": "기간",
+        "summary": "3주 전 시작 · 최근 악화",
+        "quoteLabel": "내가 말한 것",
+        "originalQuote": "\"한 3주쯤 됐나... 요즘 더 아파요\"",
+        "editedBadge": "직접 고침"
+      },
+      "notices": [
+        {
+          "title": "9/3 검사 결과 확인일이에요"
+        },
+        {
+          "title": "브리핑 카드를 저장했어요",
+          "body": "홈에서 다시 열 수 있어요"
+        },
+        {
+          "title": "아직 답하지 않은 항목이 있어요",
+          "body": "빈 칸이 있으면 의사가 물어볼 내용이 늘어나요"
+        },
+        {
+          "title": "저장하지 못했어요",
+          "body": "인터넷 연결을 확인해주세요"
+        },
+        {
+          "title": "다음 진료가 예약돼 있어요",
+          "body": "9월 26일 (토) 오전 10:30"
+        }
+      ],
+      "toasts": [
+        {
+          "message": "카드를 삭제했어요",
+          "actionLabel": "실행 취소"
+        }
+      ],
+      "emptyStates": [
+        {
+          "title": "아직 저장된 카드가 없어요",
+          "description": "진료 준비를 시작하면 여기에 쌓여요",
+          "actionLabel": "새 진료 준비하기"
+        },
+        {
+          "note": "작성하던 내용은 그대로 있어요",
+          "title": "연결이 끊겼어요",
+          "description": "다시 연결되면 이어서 저장할게요",
+          "actionLabel": "다시 시도"
+        },
+        {
+          "title": "마이크를 쓸 수 없어요",
+          "description": "설정에서 권한을 켜거나 직접 입력할 수 있어요",
+          "actionLabel": "직접 입력하기"
+        }
+      ],
+      "loading": {
+        "spinnerMessage": "증상을 정리하고 있어요",
+        "skeletonDescription": "카드를 불러오는 중"
+      },
+      "dialog": {
+        "title": "정말 탈퇴하시겠어요?",
+        "message": "저장된 브리핑 카드와 진료 기록이 모두 삭제되고 되돌릴 수 없어요",
+        "confirmLabel": "탈퇴하기",
+        "dismissLabel": "취소"
+      },
+      "chips": [
+        "두통",
+        "복통",
+        "발열"
+      ],
+      "todoRows": [
+        "달라진 증상 있으면 카드 수정",
+        "복용 중인 약 사진 찍기"
+      ],
+      "pickerField": {
+        "placeholder": "병원을 골라주세요",
+        "value": "서울OO병원 내과"
+      },
+      "hospitalCard": {
+        "name": "서울OO병원 내과",
+        "address": "서울 관악구 남부순환로 1820, 3층",
+        "chips": [
+          {
+            "text": "09.12 진료",
+            "tone": "PAST"
+          },
+          {
+            "text": "09.26 재방문",
+            "tone": "PLANNED"
+          }
+        ]
+      },
+      "cardRows": [
+        {
+          "title": "복부 통증 · 3주",
+          "meta": "09.04 작성 · 서울OO병원 내과"
+        },
+        {
+          "title": "두통 · 잦은 어지러움",
+          "meta": "08.21 작성 · 카드만 작성됨"
+        }
+      ],
+      "textInputs": {
+        "label": "복용 중인 약",
+        "placeholder": "약 이름을 적어주세요",
+        "helperText": "여러 개면 쉼표로 구분해요",
+        "value": "타이레놀 500mg",
+        "errorText": "약 이름을 두 글자 이상 적어주세요",
+        "textAreaPlaceholder": "의사에게 더 말하고 싶은 내용이 있으면 적어주세요",
+        "textAreaValue": "3주 전부터 오른쪽 손가락이 아침에 잘 안 펴져요. 요즘은 저녁에도 그래요."
+      },
+      "segmented": [
+        [
+          "진료 전",
+          "진료 후"
+        ],
+        [
+          "전체",
+          "확정",
+          "작성 중",
+          "지난 것"
+        ]
+      ],
+      "sectionHeader": {
+        "title": "저장된 브리핑 카드",
+        "actionLabel": "전체 보기"
+      },
+      "avatars": [
+        "서연",
+        "김"
+      ],
+      "voiceStates": {
+        "IDLE": {
+          "title": "말씀해 주세요",
+          "description": "편하게 말씀하시면 제가 정리할게요"
+        },
+        "LISTENING": {
+          "title": "듣고 있어요",
+          "description": "다 말씀하시면 버튼을 다시 눌러주세요"
+        },
+        "PROCESSING": {
+          "title": "정리하는 중이에요",
+          "description": "잠시만 기다려 주세요"
+        },
+        "DENIED": {
+          "title": "마이크를 쓸 수 없어요",
+          "description": "설정에서 마이크 권한을 켜주세요"
+        },
+        "nextHint": "\"다음\"이라고 말하거나 버튼을 눌러주세요",
+        "typeInstead": "직접 입력할게요"
+      }
+    },
+    "screenPreviewViewports": [
+      {
+        "name": "390 · 기준",
+        "widthDp": 390,
+        "heightDp": 844,
+        "fontScale": 1
+      },
+      {
+        "name": "360 · 좁은 기기",
+        "widthDp": 360,
+        "heightDp": 780,
+        "fontScale": 1
+      },
+      {
+        "name": "412 · 넓은 기기",
+        "widthDp": 412,
+        "heightDp": 892,
+        "fontScale": 1
+      },
+      {
+        "name": "360 · 글꼴 200%",
+        "widthDp": 360,
+        "heightDp": 1400,
+        "fontScale": 2
+      }
+    ]
+  }
+}

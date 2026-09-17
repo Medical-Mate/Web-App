@@ -1,0 +1,16 @@
+node_modules
+dist
+.DS_Store
+*.local
+
+# 로컬 설정. 백엔드 주소 기본값은 vite.config.ts 에 있어서 없어도 돌아간다.
+# 토큰을 적는 자리라 올리지 않는다.
+.env
+.env.*
+!.env.example
+
+# 타입 검사 캐시
+tsconfig.tsbuildinfo
+
+# Vercel CLI 가 만드는 연결 정보
+.vercel

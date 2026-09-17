@@ -1,0 +1,762 @@
+/* =============================================================================
+   진료메이트 (MedicalMate) — 디자인 토큰 CSS
+   =============================================================================
+
+   이 파일은 손으로 지은 값이 하나도 없다. 전부 아래 소스에서 읽은 값이다.
+
+   | 블록                | 소스 |
+   |---------------------|------|
+   | 팔레트 43           | core/designsystem/Palette.kt |
+   | 시맨틱 41           | core/designsystem/MedicalMateColors.kt (LightMedicalMateColors) |
+   | 타이포 15           | core/designsystem/Type.kt (DefaultMedicalMateTypography) |
+   | 간격 12 · 크기 14   | core/designsystem/Dimens.kt |
+   | 반경 10             | core/designsystem/MedicalMateRadius.kt |
+   | 고도 3 · Glass      | core/designsystem/Elevation.kt |
+   | 브랜드 고정색 10    | core/designsystem/BrandColor.kt |
+   | 스크림 알파         | core/designsystem/component/OverlayScrim.kt |
+   | Loading 규격        | core/designsystem/component/Loading.kt |
+   | 아이콘 획           | res/drawable/ic_*.xml (46종 전수) |
+   | 통증 5단계 문구     | res/values/strings.xml |
+
+   대조 문서: docs/android-analysis/10-design-tokens.md,
+             docs/android-analysis/11-component-catalog.md, MedicalMate/DESIGN.md
+
+   -- 쓰는 규칙 3가지 --------------------------------------------------------
+
+   1. 컴포넌트는 --mm-bg-* / --mm-fg-* / --mm-border-* / --mm-severity-* 만 본다.
+      --mm-color-* (원시 팔레트)를 컴포넌트에서 직접 집지 않는다.
+      Palette.kt 의 43개 상수가 전부 `internal` 인 것과 같은 규칙이다.
+
+   2. 다크 모드 값은 소스에 존재하지 않는다. MedicalMateColors.kt 에 Light 세트
+      하나뿐이고 res/values-night 폴더도 없다. 아래 다크 블록은 구조만 깔고
+      값은 라이트와 동일하게 두었다. 추측해서 채우면 DESIGN.md §11-3(대비 통과)을
+      검증할 수 없다. 디자인이 확정하면 그 두 블록의 오른쪽 값만 바꾼다.
+
+   3. 모바일 폭을 고정하지 않는다. --mm-layout-screen-w 360 은 "최소 기준"이지
+      레이아웃 폭이 아니다 (Dimens.kt 주석). 좌우 거터 20 만 고정하고 본문은 FILL.
+
+   ========================================================================== */
+
+/* -----------------------------------------------------------------------------
+   폰트 — Pretendard v1.3.9
+   -----------------------------------------------------------------------------
+   앱은 static OTF 4종(Regular/Medium/SemiBold/Bold)을 res/font/ 에 동봉한다.
+   Google Fonts 에 없어 Downloadable Fonts / Google Fonts CDN 으로는 못 받는다.
+   웹은 jsDelivr 의 dynamic-subset CSS 를 쓴다. 이 CSS 안의 @font-face 가
+   font-display: swap 을 이미 달고 있고, 100~900 을 전부 실물 웨이트로 제공하므로
+   합성 굵기(faux bold)가 걸리지 않는다 — SemiBold 600 이 Bold 로 뭉개지지 않는다.
+
+   @import 는 반드시 다른 규칙보다 앞에 와야 한다. HTML <head> 에서
+   <link rel="stylesheet" href="...pretendard-dynamic-subset.css"> 로 먼저
+   불러오는 편이 렌더 차단이 덜하다. 그 경우 아래 @import 는 지운다.
+   -------------------------------------------------------------------------- */
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.css");
+
+/* 자체 호스팅으로 바꿀 때는 위 @import 를 지우고 아래 블록의 주석을 푼다.
+   Pretendard 는 SIL Open Font License 1.1 이다. 폰트를 정적 자산에 올려
+   재배포하면 저작권 표시와 라이선스 원문(licenses/Pretendard-OFL.txt)을
+   빌드 산출물에 함께 포함시켜야 한다.
+
+@font-face {
+  font-family: "Pretendard";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("/fonts/Pretendard-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Pretendard";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 500;
+  src: url("/fonts/Pretendard-Medium.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Pretendard";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 600;
+  src: url("/fonts/Pretendard-SemiBold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Pretendard";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("/fonts/Pretendard-Bold.woff2") format("woff2");
+}
+*/
+
+/* =============================================================================
+   1계층 — 원시 팔레트 43개 (Palette.kt)
+   화면 코드에서 직접 쓰지 않는다. 시맨틱 토큰을 정의하는 여기에서만 참조한다.
+   ========================================================================== */
+:root {
+  /* primary — 인디고 231°. 흔한 파랑(210~215°)을 피한 값이다 (DESIGN.md §2.2) */
+  --mm-color-primary-50:  #F2F4FE;
+  --mm-color-primary-100: #E3E7FC;
+  --mm-color-primary-200: #C7CFF8;
+  --mm-color-primary-300: #A3AFF1;
+  --mm-color-primary-400: #7484E3;
+  --mm-color-primary-500: #5566D2;
+  --mm-color-primary-600: #3B4FC0;
+  --mm-color-primary-700: #2E3E9E;
+  --mm-color-primary-800: #242F79;
+  --mm-color-primary-900: #1A2154;
+
+  /* neutral — 11단계. neutral/800 은 존재하지 않는다 */
+  --mm-color-neutral-0:   #FFFFFF;
+  --mm-color-neutral-25:  #FAFBFD;
+  --mm-color-neutral-50:  #F5F6FA;
+  --mm-color-neutral-100: #EDEFF5;
+  --mm-color-neutral-200: #DEE1EB;
+  --mm-color-neutral-300: #C6CAD8;
+  --mm-color-neutral-400: #989EB1;
+  --mm-color-neutral-500: #7C8397;
+  --mm-color-neutral-600: #585F73;
+  --mm-color-neutral-700: #3A4053;
+  --mm-color-neutral-900: #131722;
+
+  /* amber / green / red — 각 4개 */
+  --mm-color-amber-50:  #FFF4D6;
+  --mm-color-amber-100: #FFE9B3;
+  --mm-color-amber-500: #E0A227;
+  --mm-color-amber-700: #8A5A0B;
+  --mm-color-green-50:  #E4F7ED;
+  --mm-color-green-100: #C6F0DC;
+  --mm-color-green-500: #12A05F;
+  --mm-color-green-700: #0E7A4A;
+  --mm-color-red-50:    #FFEDEB;
+  --mm-color-red-100:   #FFD8D4;
+  --mm-color-red-500:   #E5504A;
+  --mm-color-red-700:   #C4302B;
+
+  /* severity — base 5 + tint 5. 임상 척도라 임의로 바꾸지 않는다 */
+  --mm-color-severity-1: #FFE3A8;
+  --mm-color-severity-2: #FFC79B;
+  --mm-color-severity-3: #FFA894;
+  --mm-color-severity-4: #F58079;
+  --mm-color-severity-5: #DC5A55;
+  --mm-color-severity-1-tint: #FFF6E4;
+  --mm-color-severity-2-tint: #FFEFE4;
+  --mm-color-severity-3-tint: #FFE9E3;
+  --mm-color-severity-4-tint: #FDE4E2;
+  --mm-color-severity-5-tint: #F9DEDD;
+
+  /* ===========================================================================
+     2계층 — 시맨틱 41개 (MedicalMateColors.kt / LightMedicalMateColors)
+     화면에서 쓰는 것은 이것뿐이다.
+     ======================================================================== */
+
+  /* 배경 14 */
+  --mm-bg-canvas:          var(--mm-color-neutral-50);   /* #F5F6FA 화면 바탕 */
+  --mm-bg-surface:         var(--mm-color-neutral-0);    /* #FFFFFF 카드·시트 */
+  --mm-bg-subtle:          var(--mm-color-neutral-100);  /* #EDEFF5 입력 필드·보조 블록 */
+  --mm-bg-primary:         var(--mm-color-primary-500);  /* #5566D2 주 버튼·행동 유도 블록 */
+  --mm-bg-primary-pressed: var(--mm-color-primary-600);  /* #3B4FC0 눌림 */
+  --mm-bg-primary-subtle:  var(--mm-color-primary-100);  /* #E3E7FC Callout·환자 발화 */
+  --mm-bg-primary-faint:   var(--mm-color-primary-50);   /* #F2F4FE Notice/Info·일정 카드 */
+  --mm-bg-info:            var(--mm-color-primary-50);   /* #F2F4FE Notice/Toast 의 Info 톤 */
+  --mm-bg-success:         var(--mm-color-green-50);     /* #E4F7ED */
+  --mm-bg-warning:         var(--mm-color-amber-50);     /* #FFF4D6 알러지 경고 */
+  --mm-bg-danger:          var(--mm-color-red-50);       /* #FFEDEB 삭제 버튼 */
+  --mm-bg-inverse:         var(--mm-color-neutral-900);  /* #131722 Toast */
+  --mm-bg-inverse-soft:    var(--mm-color-neutral-700);  /* #3A4053 Tooltip Bubble */
+  --mm-bg-scrim:           var(--mm-color-neutral-900);  /* #131722 · 알파는 --mm-scrim-alpha */
+
+  /* 전경 12 — 괄호 안은 흰 배경 대비 */
+  --mm-fg-default:    var(--mm-color-neutral-900);  /* #131722 17.90 본문 기본 */
+  --mm-fg-subtle:     var(--mm-color-neutral-600);  /* #585F73  6.36 보조·플레이스홀더 하한 */
+  --mm-fg-muted:      var(--mm-color-neutral-500);  /* #7C8397  3.78 본문 금지. 비활성 아이콘·장식 획 전용 */
+  --mm-fg-disabled:   var(--mm-color-neutral-300);  /* #C6CAD8 */
+  --mm-fg-on-primary: var(--mm-color-neutral-0);    /* #FFFFFF */
+  --mm-fg-on-inverse: var(--mm-color-neutral-0);    /* #FFFFFF */
+  --mm-fg-primary:    var(--mm-color-primary-700);  /* #2E3E9E  9.13 */
+  --mm-fg-link:       var(--mm-color-primary-700);  /* #2E3E9E  fg-primary 와 같은 값, 별도 토큰 */
+  --mm-fg-info:       var(--mm-color-primary-700);  /* #2E3E9E  〃 */
+  --mm-fg-success:    var(--mm-color-green-700);    /* #0E7A4A  4.98 */
+  --mm-fg-warning:    var(--mm-color-amber-700);    /* #8A5A0B  5.40 */
+  --mm-fg-danger:     var(--mm-color-red-700);      /* #C4302B  5.28 */
+
+  /* 테두리 5 */
+  --mm-border-subtle:  var(--mm-color-neutral-200); /* #DEE1EB 목록 구분선·입력 밑줄 */
+  --mm-border-default: var(--mm-color-neutral-300); /* #C6CAD8 */
+  --mm-border-strong:  var(--mm-color-neutral-500); /* #7C8397 입력 필드 테두리(비어 있음) */
+  --mm-border-focus:   var(--mm-color-primary-500); /* #5566D2 포커스 */
+  --mm-border-primary: var(--mm-color-primary-500); /* #5566D2 〃 같은 값, 별도 토큰 */
+  /* 예외: 선택 완료된 필드의 테두리는 --mm-fg-default 를 쓴다 (DESIGN.md §2.5).
+     PickerField.kt 가 이 규칙을 그대로 쓴다 → .is-filled { border-color: var(--mm-fg-default) } */
+
+  /* 통증 10 */
+  --mm-severity-1: var(--mm-color-severity-1);
+  --mm-severity-2: var(--mm-color-severity-2);
+  --mm-severity-3: var(--mm-color-severity-3);
+  --mm-severity-4: var(--mm-color-severity-4);
+  --mm-severity-5: var(--mm-color-severity-5);
+  --mm-severity-1-tint: var(--mm-color-severity-1-tint);
+  --mm-severity-2-tint: var(--mm-color-severity-2-tint);
+  --mm-severity-3-tint: var(--mm-color-severity-3-tint);
+  --mm-severity-4-tint: var(--mm-color-severity-4-tint);
+  --mm-severity-5-tint: var(--mm-color-severity-5-tint);
+
+  /* ===========================================================================
+     브랜드 고정색 10 (BrandColor.kt) — 테마 밖. 다크 모드에도 바뀌지 않는다.
+     각 사 공식 가이드가 색 변경을 금지한다.
+     ======================================================================== */
+  --mm-kakao-container:  #FEE500;
+  --mm-kakao-symbol:     #000000;  /* Kotlin 은 Color.Black */
+  --mm-kakao-label:      #191600;
+  --mm-naver-container:  #03C75A;  /* 흰 글자와 2.2:1 — DESIGN.md §9 의 유일한 대비 예외 */
+  --mm-naver-label:      #FFFFFF;
+  --mm-apple-container:  #000000;
+  --mm-apple-label:      #FFFFFF;
+  --mm-google-container: #FFFFFF;
+  --mm-google-label:     #1F1F1F;
+  --mm-google-border:    #747775;
+  /* 백엔드가 지금 카카오만 지원한다. 값을 미리 둔 것은 컴포넌트가 variant 를
+     다 갖추게 하려는 것이고, 버튼을 화면에 그리라는 뜻이 아니다 (BrandColor.kt KDoc) */
+
+  /* ===========================================================================
+     플랫폼 창 배경 (res/values/colors.xml)
+     ======================================================================== */
+  --mm-platform-bg-canvas:  #F5F6FA;
+  --mm-platform-bg-primary: #5566D2;  /* manifest.json 의 background_color / theme_color.
+                                         windowBackground 을 스플래시와 같은 파란 면으로
+                                         맞춘 이유가 웹에도 그대로 성립한다 */
+
+  /* ===========================================================================
+     타이포 (Type.kt) — sp → px 1:1.
+     자간은 소스가 (letterSpacingPercent / 100).em 이라 퍼센트/100 이 곧 em 이다.
+     행간은 unitless ratio 가 아니라 px 절대값이어야 Figma 와 어긋나지 않는다.
+     ======================================================================== */
+  --mm-font-sans: Pretendard, -apple-system, BlinkMacSystemFont,
+                  "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic",
+                  system-ui, sans-serif;
+
+  --mm-font-weight-regular:  400;
+  --mm-font-weight-medium:   500;
+  --mm-font-weight-semibold: 600;
+  --mm-font-weight-bold:     700;
+
+  --mm-type-display-m-size: 30px;  --mm-type-display-m-line: 40px;  --mm-type-display-m-tracking: -0.02em;   --mm-type-display-m-weight: 700;
+  --mm-type-heading-l-size: 24px;  --mm-type-heading-l-line: 34px;  --mm-type-heading-l-tracking: -0.02em;   --mm-type-heading-l-weight: 700;
+  --mm-type-heading-m-size: 20px;  --mm-type-heading-m-line: 28px;  --mm-type-heading-m-tracking: -0.015em;  --mm-type-heading-m-weight: 600;
+  --mm-type-heading-s-size: 17px;  --mm-type-heading-s-line: 24px;  --mm-type-heading-s-tracking: -0.01em;   --mm-type-heading-s-weight: 600;
+  --mm-type-body-l-size:    17px;  --mm-type-body-l-line:    26px;  --mm-type-body-l-tracking:    0;         --mm-type-body-l-weight:    400;
+  --mm-type-body-l-strong-weight: 600;
+  --mm-type-body-m-size:    15px;  --mm-type-body-m-line:    24px;  --mm-type-body-m-tracking:    0;         --mm-type-body-m-weight:    400;
+  --mm-type-body-m-strong-weight: 600;
+  --mm-type-body-s-size:    13px;  --mm-type-body-s-line:    20px;  --mm-type-body-s-tracking:    0;         --mm-type-body-s-weight:    400;
+  --mm-type-body-s-strong-weight: 600;
+  --mm-type-label-l-size:   15px;  --mm-type-label-l-line:   20px;  --mm-type-label-l-tracking:   0;         --mm-type-label-l-weight:   600;
+  --mm-type-label-m-size:   13px;  --mm-type-label-m-line:   18px;  --mm-type-label-m-tracking:   0;         --mm-type-label-m-weight:   600;
+  --mm-type-label-s-size:   11px;  --mm-type-label-s-line:   16px;  --mm-type-label-s-tracking:   0.02em;    --mm-type-label-s-weight:   500;
+  --mm-type-numeric-l-size: 24px;  --mm-type-numeric-l-line: 30px;  --mm-type-numeric-l-tracking: -0.015em;  --mm-type-numeric-l-weight: 700;
+  --mm-type-numeric-m-size: 17px;  --mm-type-numeric-m-line: 22px;  --mm-type-numeric-m-tracking: -0.01em;   --mm-type-numeric-m-weight: 600;
+
+  /* ===========================================================================
+     간격 12 (MedicalMateSpace) — 4의 배수 스케일이 아니다. 2·6·10·14 가 섞여 있다.
+     Tailwind 기본 spacing(0.25rem 배수)에 매핑하지 말고 전용 스케일로 덮어쓴다.
+     임의의 간격값을 쓰지 않는다. 새 값이 필요하면 여기에 추가할지 먼저 검토한다.
+     ======================================================================== */
+  --mm-space-2:  2px;
+  --mm-space-4:  4px;
+  --mm-space-6:  6px;
+  --mm-space-8:  8px;
+  --mm-space-10: 10px;
+  --mm-space-12: 12px;
+  --mm-space-14: 14px;
+  --mm-space-16: 16px;
+  --mm-space-20: 20px;
+  --mm-space-24: 24px;
+  --mm-space-32: 32px;
+  --mm-space-40: 40px;
+
+  /* ===========================================================================
+     크기·레이아웃 14 (MedicalMateSize)
+     ======================================================================== */
+  --mm-size-touch-min:  48px;  /* 접근성 하한. 시각 규격이 더 작은 컨트롤은 hit area 를 따로 넓힌다 */
+  --mm-size-icon-sm:    18px;
+  --mm-size-icon-md:    20px;
+  --mm-size-icon-lg:    24px;
+  --mm-size-control-sm: 40px;
+  --mm-size-control-md: 48px;
+  --mm-size-control-lg: 56px;
+  --mm-size-mic:        88px;  /* 주 음성 입력 버튼 */
+
+  --mm-layout-screen-w:     360px; /* 기준 폭. 이 값으로 레이아웃을 고정하지 않는다 */
+  --mm-layout-gutter:       20px;  /* 좌우 여백 — 이것만 고정한다 */
+  --mm-layout-content-w:    320px; /* 360 기준 콘텐츠 폭. 모든 기기에서 강제하지 않는다 */
+  --mm-layout-safe-bottom:  24px;  /* 컴포넌트 내부 시각 여백.
+                                      env(safe-area-inset-bottom) 과 중복 적용하지 않는다 */
+  --mm-layout-nav-h:        56px;  /* 고정이 아니라 min-height (NavBar.kt heightIn) */
+  --mm-layout-tabbar-h:     79px;  /* 82 아님. DESIGN.md 3.0 이 79 로 확정했다 */
+  --mm-layout-screen-min-h: 812px;
+
+  /* 토큰은 아니지만 소스가 상수로 들고 있는 조립 치수.
+     크롬 높이는 매직 넘버가 아니라 다른 토큰의 합이다. 이 합을 그대로 쌓으면
+     79 / 92 가 저절로 나온다 (TabBar.kt · BottomCtaBar.kt · NavBar.kt) */
+  --mm-tabbar-hairline: 1px;   /* Tab Bar 상단 경계선 */
+  --mm-tabbar-row-h:    54px;  /* = space/8 8 + 탭 46.  1 + 54 + 24 = 79 */
+  --mm-bottom-cta-h:    92px;  /* = space/12 12 + control-lg 56 + safe-bottom 24 */
+  --mm-navbar-title-inset:        60px;  /* = space/8 8 + touch-min 48 + space/4 4 */
+  --mm-navbar-title-inset-action: 88px;  /* 텍스트 액션이 있을 때 */
+  --mm-iconbox-l: 48px;  /* = size/control-md */
+  --mm-iconbox-m: 40px;  /* = size/control-sm */
+  --mm-iconbox-s: 32px;  /* 토큰이 없다. IconButton.kt 가 32.dp 를 직접 쓴다 */
+  --mm-avatar:          44px;  /* DESIGN.md §5 고정 규격 */
+  --mm-date-cell:       42px;
+  --mm-date-cell-sheet: 34px;  /* 시트 안 */
+
+  /* ===========================================================================
+     반경 10 (MedicalMateRadius)
+     같은 화면에서 반경 단계를 두 단계 이상 건너뛰지 않는다.
+     ======================================================================== */
+  --mm-radius-xs:   8px;    /* Badge, Checkbox, Skeleton 줄 */
+  --mm-radius-sm:   12px;   /* S Button, 원문 블록, 질문 pill */
+  --mm-radius-md:   16px;   /* L Button, Notice, 입력 필드 */
+  --mm-radius-lg:   20px;   /* Card, Callout */
+  --mm-radius-xl:   24px;   /* Dialog */
+  --mm-radius-2xl:  28px;   /* Bottom Sheet */
+  --mm-radius-full: 9999px; /* Chip, Avatar, pill, Icon Button L/M/S 전부.
+                               원형 요소(Avatar·Fab)는 50% 로 두어도 된다 */
+  /* 스케일 밖 중간값 2개 — 없애지 말 것. 소스가 이유까지 적어 두었다 */
+  --mm-radius-button-m:  14px; /* M Button 전용 */
+  --mm-radius-date-cell: 13px; /* Date Cell 전용. sm(12)/button-m(14)로 바꾸면
+                                  한 주 일곱 칸이 나란히 놓일 때 차이가 눈에 띈다 */
+  /* Bottom Sheet 상단만 둥글다 (sheetTop: topStart=28, topEnd=28):
+     border-radius: var(--mm-radius-2xl) var(--mm-radius-2xl) 0 0 */
+
+  /* ===========================================================================
+     고도 · 그림자 (Elevation.kt) — Figma 원본 2단 값 그대로.
+     Compose 는 Modifier.shadow 의 한계로 근사값만 썼다. CSS 는 2단·음수 offset 을
+     그대로 받으므로 웹이 시안에 더 가깝다. 값을 낮추지 말 것.
+     그림자는 브랜드 틴트다. 흰 화면 위의 검정 그림자는 회색 때처럼 보인다.
+     ======================================================================== */
+  --mm-shadow-tint: 27 37 90;  /* #1B255A. ambientColor/spotColor 에 함께 넘기는 값 */
+
+  --mm-elevation-card:  0 3px 10px rgb(var(--mm-shadow-tint) / .08),
+                        0 1px  2px rgb(var(--mm-shadow-tint) / .05);
+  --mm-elevation-float: 0 4px 14px rgb(var(--mm-shadow-tint) / .09),
+                        0 1px  3px rgb(var(--mm-shadow-tint) / .06);
+  --mm-elevation-sheet: 0 -4px 24px rgb(var(--mm-shadow-tint) / .10),
+                        0  0    2px rgb(var(--mm-shadow-tint) / .05);
+  /* Bottom CTA Bar 는 Elevation/Sheet(y−4)가 아니라 Elevation/Float(y+4)를 쓴다.
+     화면 맨 아래 바에서는 y+4 가 잘리고 위쪽 ambient 만 남는데 그 한 겹이면 된다 */
+
+  /* Glass (MedicalMateGlass).
+     주의: 안드로이드는 이 블러를 화면에 한 번도 그린 적이 없다. compose-ui 에
+     backdrop 블러 API 가 없어서다. 웹의 Glass 는 "이식"이 아니라 첫 구현이다. */
+  --mm-glass-blur: 24px;
+  --mm-glass-alpha-bottom-cta: 0.78;
+  --mm-glass-alpha-nav:        0.82;
+  --mm-glass-alpha-tab:        0.86;
+
+  /* 선 — 목록 구분·선택·포커스·접근성 경계에만.
+     테두리 대신 고도로 위계를 만든다. 습관적으로 1px 선을 붙이지 않는다 */
+  --mm-border-hairline: 1px;
+
+  /* 아이콘 획 (res/drawable/ic_*.xml 46종 전수 확인) */
+  --mm-icon-stroke:      1.75;
+  --mm-icon-stroke-dots: 2.6;   /* more-horizontal 하나만 */
+
+  /* 온보딩 일러스트 종횡비 (img_onboarding_*.xml, 352 × 290.4) */
+  --mm-illustration-ratio: 352 / 290.4;
+
+  /* Overlay Scrim (OverlayScrim.kt).
+     DESIGN.md 는 40~50% 라 적었고 코드는 50% 를 쓴다 → 50% */
+  --mm-scrim-alpha: 0.5;
+
+  /* Loading (Loading.kt) */
+  --mm-loading-min-h:   116px;
+  --mm-skeleton-line-h: 16px;
+  --mm-skeleton-gap:    var(--mm-space-12);
+  --mm-skeleton-pad:    var(--mm-space-20);
+}
+
+/* =============================================================================
+   다크 모드 — 값이 아직 없다
+   =============================================================================
+   MedicalMateColors.kt / Theme.kt / res/values/themes.xml 세 군데가 같은 말을
+   한다: "DESIGN.md 에 다크 모드 값이 없다. 값이 정해지고 컴포넌트 QA 가 끝나기
+   전까지 다크를 지원 대상으로 표시하지 않는다." res/values-night 폴더도 없다.
+
+   그래서 구조만 깔고 값은 라이트와 동일하게 둔다. 색을 추측해 채우면
+   DESIGN.md §11-1(하드코딩 0)·§11-3(대비 통과)을 검증할 수 없다.
+   디자인이 다크 팔레트를 확정하면 아래 두 블록의 오른쪽 값만 교체한다.
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    /* 배경 14 — TODO(design): 다크 값 확정 대기 */
+    --mm-bg-canvas:          #F5F6FA;
+    --mm-bg-surface:         #FFFFFF;
+    --mm-bg-subtle:          #EDEFF5;
+    --mm-bg-primary:         #5566D2;
+    --mm-bg-primary-pressed: #3B4FC0;
+    --mm-bg-primary-subtle:  #E3E7FC;
+    --mm-bg-primary-faint:   #F2F4FE;
+    --mm-bg-info:            #F2F4FE;
+    --mm-bg-success:         #E4F7ED;
+    --mm-bg-warning:         #FFF4D6;
+    --mm-bg-danger:          #FFEDEB;
+    --mm-bg-inverse:         #131722;
+    --mm-bg-inverse-soft:    #3A4053;
+    --mm-bg-scrim:           #131722;
+    /* 전경 12 */
+    --mm-fg-default:    #131722;
+    --mm-fg-subtle:     #585F73;
+    --mm-fg-muted:      #7C8397;
+    --mm-fg-disabled:   #C6CAD8;
+    --mm-fg-on-primary: #FFFFFF;
+    --mm-fg-on-inverse: #FFFFFF;
+    --mm-fg-primary:    #2E3E9E;
+    --mm-fg-link:       #2E3E9E;
+    --mm-fg-info:       #2E3E9E;
+    --mm-fg-success:    #0E7A4A;
+    --mm-fg-warning:    #8A5A0B;
+    --mm-fg-danger:     #C4302B;
+    /* 테두리 5 */
+    --mm-border-subtle:  #DEE1EB;
+    --mm-border-default: #C6CAD8;
+    --mm-border-strong:  #7C8397;
+    --mm-border-focus:   #5566D2;
+    --mm-border-primary: #5566D2;
+    /* 통증 10 — 임상 척도라 색 변경에는 디자인·기획 합의가 필요하다 */
+    --mm-severity-1: #FFE3A8;  --mm-severity-1-tint: #FFF6E4;
+    --mm-severity-2: #FFC79B;  --mm-severity-2-tint: #FFEFE4;
+    --mm-severity-3: #FFA894;  --mm-severity-3-tint: #FFE9E3;
+    --mm-severity-4: #F58079;  --mm-severity-4-tint: #FDE4E2;
+    --mm-severity-5: #DC5A55;  --mm-severity-5-tint: #F9DEDD;
+  }
+}
+
+/* 토글이 OS 설정을 이기게 한다. 위 @media 블록과 같은 목록이다. */
+:root[data-theme="dark"] {
+  --mm-bg-canvas:          #F5F6FA;
+  --mm-bg-surface:         #FFFFFF;
+  --mm-bg-subtle:          #EDEFF5;
+  --mm-bg-primary:         #5566D2;
+  --mm-bg-primary-pressed: #3B4FC0;
+  --mm-bg-primary-subtle:  #E3E7FC;
+  --mm-bg-primary-faint:   #F2F4FE;
+  --mm-bg-info:            #F2F4FE;
+  --mm-bg-success:         #E4F7ED;
+  --mm-bg-warning:         #FFF4D6;
+  --mm-bg-danger:          #FFEDEB;
+  --mm-bg-inverse:         #131722;
+  --mm-bg-inverse-soft:    #3A4053;
+  --mm-bg-scrim:           #131722;
+  --mm-fg-default:    #131722;
+  --mm-fg-subtle:     #585F73;
+  --mm-fg-muted:      #7C8397;
+  --mm-fg-disabled:   #C6CAD8;
+  --mm-fg-on-primary: #FFFFFF;
+  --mm-fg-on-inverse: #FFFFFF;
+  --mm-fg-primary:    #2E3E9E;
+  --mm-fg-link:       #2E3E9E;
+  --mm-fg-info:       #2E3E9E;
+  --mm-fg-success:    #0E7A4A;
+  --mm-fg-warning:    #8A5A0B;
+  --mm-fg-danger:     #C4302B;
+  --mm-border-subtle:  #DEE1EB;
+  --mm-border-default: #C6CAD8;
+  --mm-border-strong:  #7C8397;
+  --mm-border-focus:   #5566D2;
+  --mm-border-primary: #5566D2;
+  --mm-severity-1: #FFE3A8;  --mm-severity-1-tint: #FFF6E4;
+  --mm-severity-2: #FFC79B;  --mm-severity-2-tint: #FFEFE4;
+  --mm-severity-3: #FFA894;  --mm-severity-3-tint: #FFE9E3;
+  --mm-severity-4: #F58079;  --mm-severity-4-tint: #FDE4E2;
+  --mm-severity-5: #DC5A55;  --mm-severity-5-tint: #F9DEDD;
+}
+
+/* =============================================================================
+   베이스
+   ========================================================================== */
+
+/* 다크 값이 확정되기 전까지 light 고정.
+   지금 dark 로 두면 폼 컨트롤과 스크롤바만 어두워져 흰 면 위에서 어긋난다. */
+html { color-scheme: light; }
+
+body {
+  margin: 0;
+  /* Theme.kt 의 background 가 bgSurface 다. Figma 가 bg/canvas 를 bg/surface 로
+     전면 재바인딩해서 화면 바닥이 모두 흰색이 됐다. bg-canvas 는 화면이
+     스스로 그릴 때만 쓴다. */
+  background: var(--mm-bg-surface);
+  color: var(--mm-fg-default);
+  font-family: var(--mm-font-sans);
+  /* 본문 기본은 Body/L 17. 진료실에서 소리 내어 읽을 문장이라 15로는 부족하다.
+     브라우저 기본 16 을 그대로 두면 앱보다 작아진다. */
+  font-size: var(--mm-type-body-l-size);
+  line-height: var(--mm-type-body-l-line);
+  font-weight: var(--mm-font-weight-regular);
+  -webkit-font-smoothing: antialiased;
+  /* 한국어 어절 단위 줄바꿈. Compose 의 WordBreak.Phrase 대응.
+     이게 없으면 "몰라도 괜찮 / 아요" 가 그대로 나온다. */
+  word-break: keep-all;
+}
+
+/* 화면 프레임 — 높이는 내용이 정하고(HUG) 폭은 화면이 채운다(FILL).
+   최소 812 를 보장한다. 100vh 는 모바일 주소창 때문에 어긋나므로 100dvh. */
+.mm-screen {
+  min-height: 100dvh;
+  padding-inline: var(--mm-layout-gutter);
+  background: var(--mm-bg-canvas);
+}
+
+/* 데스크톱에서만 중앙 정렬 컨테이너를 씌운다. 모바일 폭은 고정하지 않는다. */
+.mm-app {
+  max-width: 480px;
+  margin-inline: auto;
+  min-height: 100dvh;
+  background: var(--mm-bg-canvas);
+  color: var(--mm-fg-default);
+}
+
+/* =============================================================================
+   타이포 유틸리티 15종 (.mm-type-*)
+   =============================================================================
+   Compose 의 LineHeightStyle(Center, Trim.None) 은 CSS line-height 의
+   half-leading 동작과 같다 — 추가 설정이 필요 없다.
+   includeFontPadding=false 는 웹에 해당 개념이 없다.
+
+   줄바꿈만 웹에서 직접 처리한다 (Type.kt 의 lineBreak):
+     LineBreak.Heading   = Balanced + Loose + Phrase  → text-wrap: balance
+     LineBreak.Paragraph = 긴 글 가독성 우선           → text-wrap: pretty
+   word-break: keep-all 은 body 에서 상속된다.
+   text-wrap 미지원 브라우저는 조용히 무시하므로 폴백이 필요 없다.
+   ========================================================================== */
+
+/* Heading 계열 — 헤딩만 자간을 조인다. 한글 본문은 자간을 조이면 판독이 떨어진다 */
+.mm-type-display-m {
+  font-size: var(--mm-type-display-m-size);
+  line-height: var(--mm-type-display-m-line);
+  letter-spacing: var(--mm-type-display-m-tracking);
+  font-weight: var(--mm-type-display-m-weight);
+  text-wrap: balance;
+}
+.mm-type-heading-l {
+  font-size: var(--mm-type-heading-l-size);
+  line-height: var(--mm-type-heading-l-line);
+  letter-spacing: var(--mm-type-heading-l-tracking);
+  font-weight: var(--mm-type-heading-l-weight);
+  text-wrap: balance;
+}
+.mm-type-heading-m {
+  font-size: var(--mm-type-heading-m-size);
+  line-height: var(--mm-type-heading-m-line);
+  letter-spacing: var(--mm-type-heading-m-tracking);
+  font-weight: var(--mm-type-heading-m-weight);
+  text-wrap: balance;
+}
+.mm-type-heading-s {
+  font-size: var(--mm-type-heading-s-size);
+  line-height: var(--mm-type-heading-s-line);
+  letter-spacing: var(--mm-type-heading-s-tracking);
+  font-weight: var(--mm-type-heading-s-weight);
+  text-wrap: balance;
+}
+
+/* Body 계열 — 자간 0. Strong 은 크기를 바꾸지 않고 같은 크기의 SemiBold 로 강조한다 */
+.mm-type-body-l {
+  font-size: var(--mm-type-body-l-size);
+  line-height: var(--mm-type-body-l-line);
+  letter-spacing: var(--mm-type-body-l-tracking);
+  font-weight: var(--mm-type-body-l-weight);
+  text-wrap: pretty;
+}
+.mm-type-body-l-strong {
+  font-size: var(--mm-type-body-l-size);
+  line-height: var(--mm-type-body-l-line);
+  letter-spacing: var(--mm-type-body-l-tracking);
+  font-weight: var(--mm-type-body-l-strong-weight);
+  text-wrap: pretty;
+}
+.mm-type-body-m {
+  font-size: var(--mm-type-body-m-size);
+  line-height: var(--mm-type-body-m-line);
+  letter-spacing: var(--mm-type-body-m-tracking);
+  font-weight: var(--mm-type-body-m-weight);
+  text-wrap: pretty;
+}
+.mm-type-body-m-strong {
+  font-size: var(--mm-type-body-m-size);
+  line-height: var(--mm-type-body-m-line);
+  letter-spacing: var(--mm-type-body-m-tracking);
+  font-weight: var(--mm-type-body-m-strong-weight);
+  text-wrap: pretty;
+}
+.mm-type-body-s {
+  font-size: var(--mm-type-body-s-size);
+  line-height: var(--mm-type-body-s-line);
+  letter-spacing: var(--mm-type-body-s-tracking);
+  font-weight: var(--mm-type-body-s-weight);
+  text-wrap: pretty;
+}
+.mm-type-body-s-strong {
+  font-size: var(--mm-type-body-s-size);
+  line-height: var(--mm-type-body-s-line);
+  letter-spacing: var(--mm-type-body-s-tracking);
+  font-weight: var(--mm-type-body-s-strong-weight);
+  text-wrap: pretty;
+}
+
+/* Label 계열 */
+.mm-type-label-l {
+  font-size: var(--mm-type-label-l-size);
+  line-height: var(--mm-type-label-l-line);
+  letter-spacing: var(--mm-type-label-l-tracking);
+  font-weight: var(--mm-type-label-l-weight);
+  text-wrap: balance;
+}
+.mm-type-label-m {
+  font-size: var(--mm-type-label-m-size);
+  line-height: var(--mm-type-label-m-line);
+  letter-spacing: var(--mm-type-label-m-tracking);
+  font-weight: var(--mm-type-label-m-weight);
+  text-wrap: balance;
+}
+.mm-type-label-s {
+  font-size: var(--mm-type-label-s-size);
+  line-height: var(--mm-type-label-s-line);
+  letter-spacing: var(--mm-type-label-s-tracking);  /* 유일하게 양수 자간 +2% */
+  font-weight: var(--mm-type-label-s-weight);       /* 유일하게 Medium 500 */
+  text-wrap: balance;
+}
+
+/* Numeric 계열 — 숫자 칸이 흔들리지 않게 tabular-nums 를 건다 */
+.mm-type-numeric-l {
+  font-size: var(--mm-type-numeric-l-size);
+  line-height: var(--mm-type-numeric-l-line);
+  letter-spacing: var(--mm-type-numeric-l-tracking);
+  font-weight: var(--mm-type-numeric-l-weight);
+  font-variant-numeric: tabular-nums;
+}
+.mm-type-numeric-m {
+  font-size: var(--mm-type-numeric-m-size);
+  line-height: var(--mm-type-numeric-m-line);
+  letter-spacing: var(--mm-type-numeric-m-tracking);
+  font-weight: var(--mm-type-numeric-m-weight);
+  font-variant-numeric: tabular-nums;
+}
+
+/* =============================================================================
+   고도 · Glass · 스크림 유틸리티
+   ========================================================================== */
+.mm-elev-card  { box-shadow: var(--mm-elevation-card); }
+.mm-elev-float { box-shadow: var(--mm-elevation-float); }
+.mm-elev-sheet { box-shadow: var(--mm-elevation-sheet); }
+
+/* Glass 는 콘텐츠 위에 겹치는 크롬 전용 — Nav Bar · Tab Bar · Bottom CTA Bar.
+   한 화면에서 떠 있는 층은 최대 두 단계다.
+   .mm-glass 에 일괄 border 를 걸지 않는다. 경계선은 컴포넌트별로 한 변만 준다. */
+.mm-glass {
+  -webkit-backdrop-filter: blur(var(--mm-glass-blur));
+  backdrop-filter: blur(var(--mm-glass-blur));
+}
+.mm-glass--nav        { background: rgb(255 255 255 / var(--mm-glass-alpha-nav)); }
+.mm-glass--tab        { background: rgb(255 255 255 / var(--mm-glass-alpha-tab)); }
+.mm-glass--bottom-cta { background: rgb(255 255 255 / var(--mm-glass-alpha-bottom-cta)); }
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  /* Opaque 폴백 — 알파만 1로 올리지 말고 뒤에 bg/surface 를 깐다 */
+  .mm-glass { background: var(--mm-bg-surface); }
+  /* 블러가 없는 쪽은 그림자가 층을 만들어야 한다. 마스터 294:652 의 Surface=Opaque 규격 */
+  .mm-glass--bottom-cta { box-shadow: var(--mm-elevation-float); }
+}
+
+/* 크롬 경계선 — Glass/Opaque 와 무관하게 항상. Modifier.border 가 네 변을 다
+   두르는 안드로이드 문제는 CSS 에서 한 변 지정으로 자연히 해결된다. */
+.mm-navbar { border-block-end:   var(--mm-border-hairline) solid var(--mm-border-subtle); }
+.mm-tabbar { border-block-start: var(--mm-border-hairline) solid var(--mm-border-subtle); }
+/* Bottom CTA Bar 는 선을 두지 않는다. 층은 그림자가 만든다 */
+
+/* 크롬 높이는 토큰 합으로 쌓는다. 79 / 92 를 직접 박지 않는다. */
+.mm-navbar      { min-height: var(--mm-layout-nav-h); }  /* 고정 height 아님 */
+.mm-tabbar__row { height: var(--mm-tabbar-row-h); padding-block-start: var(--mm-space-8); }
+.mm-tabbar__safe,
+.mm-bottom-cta  { padding-block-end: var(--mm-layout-safe-bottom); }
+.mm-bottom-cta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mm-space-10);   /* 자식이 하나면 자동으로 보이지 않는다 */
+  padding-block-start: var(--mm-space-12);
+  padding-inline: var(--mm-layout-gutter);
+}
+
+/* Nav Bar 제목은 "바의 가운데"다. "남은 폭의 가운데"가 아니다.
+   flex justify-content: space-between 에 제목을 끼우면 안드로이드가 고친
+   그 버그(오른쪽 액션 폭만큼 제목이 왼쪽으로 밀림)를 그대로 재현하게 된다. */
+.mm-navbar__title { position: absolute; inset-inline: var(--mm-navbar-title-inset); text-align: center; }
+.mm-navbar--has-action .mm-navbar__title { inset-inline: var(--mm-navbar-title-inset-action); }
+
+/* Overlay Scrim. pointer-events: none 을 주면 안 된다 — 터치를 삼켜서 뒤 화면이
+   눌리지 않게 해야 한다. 눌림 표시(ripple)도 주지 않는다. */
+.mm-scrim { position: fixed; inset: 0; background: rgb(19 23 34 / var(--mm-scrim-alpha)); }
+
+/* 터치 영역 48 보장 — 시각 규격이 더 작은 컨트롤(32 Icon Button, 42 Date Cell)용.
+   안드로이드는 자리만 확보하고 클릭은 시각 상자에 걸려 있어 실제로는 48이 아니다.
+   웹의 ::before 확장은 진짜 48을 만들므로 여기서는 접근성이 더 좋아진다. */
+.mm-hit-48 { position: relative; }
+.mm-hit-48::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--mm-size-touch-min);
+  height: var(--mm-size-touch-min);
+  transform: translate(-50%, -50%);
+}
+
+/* 포커스 */
+.mm-focus-ring:focus-visible { outline: 2px solid var(--mm-border-focus); outline-offset: 2px; }
+
+/* =============================================================================
+   아이콘 — 획형 42종 공통.
+   Vector Drawable 은 fillColor 를 안 쓰면 채우지 않지만 SVG path 의 fill 초기값은
+   black 이다. fill: none 을 명시하지 않으면 획형 아이콘이 전부 검은 덩어리가 된다.
+   ========================================================================== */
+.mm-icon {
+  width: var(--mm-size-icon-lg);
+  height: var(--mm-size-icon-lg);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--mm-icon-stroke);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  flex: none;
+}
+.mm-icon--sm { width: var(--mm-size-icon-sm); height: var(--mm-size-icon-sm); }
+.mm-icon--md { width: var(--mm-size-icon-md); height: var(--mm-size-icon-md); }
+.mm-icon--lg { width: var(--mm-size-icon-lg); height: var(--mm-size-icon-lg); }
+/* 16 이하로 줄이지 않는다. 획이 뭉개진다. */
+
+/* 채움형 4종 — home-filled · note-filled · calendar-filled · user-filled.
+   탭 활성 전용이다. 색만 바뀌면 색각 이상에서 상태가 전달되지 않는다. */
+.mm-icon--filled { fill: currentColor; stroke: none; }
+
+/* more-horizontal 만 획이 2.6 이다 (점 3개를 굵은 캡으로 찍는다) */
+.mm-icon--dots { stroke-width: var(--mm-icon-stroke-dots); }
+
+/* spinner 는 열린 호 1개라 회전만 걸면 그대로 로딩 스피너가 된다 */
+.mm-icon--spin { animation: mm-spin 1s linear infinite; transform-origin: 50% 50%; }
+@keyframes mm-spin { to { transform: rotate(360deg); } }
+
+/* =============================================================================
+   움직임 축소
+   =============================================================================
+   Loading 스켈레톤에 shimmer 를 일부러 넣지 않은 것이 원본 규칙이다.
+   "정지 상태로 두면 두 경우가 같아진다" (Loading.kt KDoc).
+   애니메이션은 OnboardingProgress 의 점→pill 과 Severity Slider 스냅 둘뿐이다.
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

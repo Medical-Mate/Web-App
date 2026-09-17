@@ -1,0 +1,586 @@
+/* 전역 스타일 · 앱 셸 */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: var(--mm-font);
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--mm-fg-default);
+  background: #e9ebf3;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+button:disabled {
+  cursor: default;
+}
+
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+  border: 0;
+  background: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ── 데스크톱 폰 목업 — 갤럭시 S26 ────────────────────────────────
+ * 원본이 안드로이드 앱이라 목업도 같은 계열이어야 한다. 갤럭시 S 의 생김새를 따른다 —
+ * 평평한 옆면, 네 변이 같은 얇은 베젤, 가운데 펀치홀, 오른쪽에 음량 위 전원 아래.
+ *
+ * **화면 크기는 기기가 아니라 시안이 정한다.** 앱 화면은 피그마 아트보드와 같은 360x812
+ * 이고, 기기 화면은 그 위에 상태바 24 를 더한 836 이다. 실제 S26 의 해상도로 바꾸면 시안과
+ * 어긋나 다른 앱이 된다.
+ *
+ * 그리는 것: 금속 테 · 얇은 베젤 · 펀치홀. 옆 버튼과 제스처 바는 두지 않는다.
+ * 모바일(≤480px)에서는 프레임을 통째로 벗는다.
+ */
+/* 무대는 창 높이에 딱 맞춘다. `min-height` 로 두면 878짜리 기기가 무대를 늘려서
+   페이지가 스크롤되고, 줄여 놓은 기기가 화면 밖으로 밀린다. */
+.mm-stage {
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  padding: 20px;
+  overflow: hidden;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, #f2f3f8 0%, transparent 60%),
+    linear-gradient(180deg, #eceef6 0%, #e4e7f1 100%);
+}
+
+/* 기기 본체 = 금속 테.
+ *
+ * 갤럭시 S 의 옆면은 평평하다. 위아래로 밝기가 도는 기울기를 줘서 각진 면이 빛을 받는 것처럼
+ * 보이게 한다 — 둥근 옆면(아이폰)은 가운데가 밝고, 평평한 면은 모서리 선이 밝다.
+ *
+ * 창이 낮으면 통째로 줄인다. 높이를 깎으면 360x812 로 그린 화면이 눌려서, 데스크톱
+ * 창 크기에 따라 다른 앱처럼 보인다. 배율은 `PhoneStage` 가 잰다.
+ */
+.mm-device {
+  position: relative;
+  flex: 0 0 auto;
+  transform: scale(var(--mm-fit, 1));
+  transform-origin: center center;
+  /* 베젤. 네 변이 같다 — 갤럭시 S 는 아래 턱이 더 두껍지 않다. */
+  padding: var(--mm-bezel);
+  border-radius: calc(var(--mm-screen-radius) + var(--mm-bezel));
+  background:
+    linear-gradient(
+      180deg,
+      #cfd3dc 0%,
+      #8d94a2 5%,
+      #6a7180 30%,
+      #5d6472 50%,
+      #6a7180 70%,
+      #8d94a2 95%,
+      #cfd3dc 100%
+    );
+  box-shadow:
+    0 40px 90px -24px rgba(19, 23, 34, 0.5),
+    0 12px 28px -12px rgba(19, 23, 34, 0.28);
+}
+
+/* 베젤 안쪽 검은 테. 유리와 금속 사이의 그 얇은 선이다. */
+.mm-device::after {
+  content: '';
+  position: absolute;
+  inset: calc(var(--mm-bezel) - 1.5px);
+  border-radius: calc(var(--mm-screen-radius) + 1.5px);
+  background: #0c0e13;
+  pointer-events: none;
+}
+
+.mm-phone {
+  position: relative;
+  z-index: 1;
+  width: var(--mm-screen-width);
+  /* 상태바 32 + 앱 화면 812 */
+  height: 844px;
+  background: var(--mm-bg-surface);
+  border-radius: var(--mm-screen-radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* 앞 카메라 펀치홀. 가운데 위, 상태바 안이다. 상태바가 시각과 아이콘을 양 끝으로 밀어
+   두어서 가운데가 비어 있고, 실제 기기도 그 자리에 뚫려 있다. */
+.mm-punchhole {
+  position: absolute;
+  /* 상태바(32) 한가운데 */
+  top: 11px;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: 50%;
+  background: #05070c;
+  box-shadow: inset 0 0 0 1px rgba(120, 130, 150, 0.45);
+  z-index: 8;
+  pointer-events: none;
+}
+
+
+/* 기기 상태바. 앱이 아니라 기기가 그리는 줄이라 앱 화면 밖에 선다.
+   글자는 Label/S 보다 작다 — 실제 기기의 상태바가 본문보다 훨씬 작은 글씨다.
+
+   **좌우 여백은 앱의 여백과 같은 20 이다.** 화면 모서리가 40 으로 둥글어서, 16 으로 두면
+   시각과 아이콘이 곡선에 닿아 눌린 것처럼 보인다. */
+.mm-statusbar {
+  flex: 0 0 auto;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--mm-gutter);
+  background: var(--mm-bg-surface);
+  color: var(--mm-fg-default);
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2px;
+  user-select: none;
+}
+.mm-statusbar__icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+/* 브랜드색이 전면에 깔린 화면. 앱 배경이 상태바 뒤까지 이어진 것처럼 보여야 한다. */
+.mm-statusbar--dark {
+  background: var(--mm-bg-primary);
+  color: var(--mm-fg-on-primary);
+}
+
+/* ── 화면 영역 ──────────────────────────────────────────────── */
+.mm-viewport {
+  position: relative;
+  /* 앱 화면은 아트보드와 같은 812 다. `flex: 1` 로 두면 기기 높이가 바뀔 때 같이 늘어난다. */
+  flex: 0 0 812px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── 시연 단계 안내 ─────────────────────────────────────────────
+ * 프레임 오른쪽에 서는 데스크톱 전용 패널이다. 앱의 토큰을 빌려 쓰되 앱 화면과 헷갈리지 않게
+ * 카드도 그림자도 두지 않는다 — 무대 배경 위에 글만 있다.
+ */
+.mm-guide {
+  flex: 0 0 300px;
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  padding: 4px 4px 4px 12px;
+  color: var(--mm-fg-default);
+  /* 막대는 감춘다. 무대 위에 회색 홈이 하나 더 생기면 기기 옆에 또 다른 기기처럼 보인다. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.mm-guide::-webkit-scrollbar {
+  width: 0;
+  display: none;
+}
+.mm-guide__head {
+  margin-bottom: 20px;
+}
+.mm-guide__title {
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.015em;
+}
+.mm-guide__lead {
+  margin-top: 6px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--mm-fg-subtle);
+}
+.mm-guide__part + .mm-guide__part {
+  margin-top: 20px;
+}
+.mm-guide__part-title {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--mm-fg-subtle);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--mm-border-subtle);
+}
+.mm-guide__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mm-guide__step {
+  display: flex;
+  gap: 10px;
+  width: calc(100% + 16px);
+  padding: 8px 8px;
+  margin: 2px -8px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 160ms ease;
+}
+.mm-guide__step:hover {
+  background: var(--mm-bg-subtle);
+}
+.mm-guide__step:focus-visible {
+  outline: 2px solid var(--mm-border-focus);
+  outline-offset: -2px;
+}
+.mm-guide__step--on,
+.mm-guide__step--on:hover {
+  background: var(--mm-bg-primary-faint);
+}
+.mm-guide__no {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--mm-bg-subtle);
+  color: var(--mm-fg-subtle);
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 16px;
+}
+.mm-guide__step--on .mm-guide__no {
+  background: var(--mm-bg-primary);
+  color: var(--mm-fg-on-primary);
+}
+.mm-guide__body {
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+.mm-guide__screen,
+.mm-guide__action {
+  display: block;
+}
+.mm-guide__screen {
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 20px;
+}
+.mm-guide__step--on .mm-guide__screen {
+  color: var(--mm-fg-primary);
+}
+.mm-guide__action {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--mm-fg-subtle);
+  word-break: keep-all;
+}
+/* 글자 그대로 칠 문구. 복사해 붙일 수 있게 골라지는 글이다. */
+.mm-guide__inputs {
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mm-guide__inputs li {
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--mm-bg-surface);
+  border: 1px solid var(--mm-border-subtle);
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--mm-fg-default);
+  user-select: all;
+}
+.mm-guide__note {
+  margin-top: 20px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--mm-fg-muted);
+}
+/* 시연 장치라 앱 버튼과 구분되게 작고 테두리만 있다. */
+.mm-guide__reset {
+  margin-top: 16px;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--mm-border-default);
+  background: var(--mm-bg-surface);
+  color: var(--mm-fg-default);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+  cursor: pointer;
+}
+.mm-guide__reset:active {
+  background: var(--mm-bg-subtle);
+}
+/* 프레임 옆이 좁으면 안내를 접는다. 360 + 48 + 300 에 여백이 들어갈 폭이 아니면 앱이 먼저다. */
+@media (max-width: 899px) {
+  .mm-guide {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .mm-stage {
+    padding: 0;
+    align-items: stretch;
+    background: var(--mm-bg-canvas);
+  }
+  .mm-device {
+    width: 100%;
+    transform: none;
+  }
+  .mm-device {
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .mm-device::after,
+  .mm-punchhole {
+    display: none;
+  }
+  .mm-phone {
+    width: min(var(--mm-screen-width), 100%);
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+    margin: 0 auto;
+  }
+  /* 실제 기기에는 자기 상태바가 있다. 목업 것을 겹쳐 두면 상태바가 둘이 된다. */
+  .mm-statusbar {
+    display: none;
+  }
+  .mm-viewport {
+    flex: 1;
+  }
+  .mm-device::before,
+  .mm-device::after {
+    display: none;
+  }
+}
+
+/* 화면 컨테이너 — 앱바/탭바를 뺀 스크롤 영역 */
+.mm-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  /* 앱의 화면은 전부 흰 면이다. `bg/canvas` 를 쓰는 화면이 하나도 없다. */
+  background: var(--mm-bg-surface);
+  overflow: hidden;
+}
+
+.mm-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 스크롤바를 감춘다. 기기에는 막대가 늘 떠 있지 않고, 목업 안에 회색 막대가
+   서면 앱이 아니라 웹페이지로 읽힌다. 스크롤 동작 자체는 그대로다. */
+.mm-scroll,
+.mm-sheet__body,
+.mm-stage {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.mm-scroll::-webkit-scrollbar,
+.mm-sheet__body::-webkit-scrollbar,
+.mm-stage::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+.mm-pad {
+  padding-left: var(--mm-gutter);
+  padding-right: var(--mm-gutter);
+}
+
+/* ── 화면 전환 ──────────────────────────────────────────────────
+ * 원본 `MedicalMateNavTransitions`.
+ *
+ * 가로로 민다. 새 화면이 오른쪽에서 들어오고 물러나는 화면은 반대쪽으로 1/4만 움직인다.
+ * 둘이 같은 거리를 움직이면 두 장이 나란히 흐르는 것으로 보이고, 뒤에 있는 것이 덜 움직여야
+ * 앞뒤가 읽힌다. 되돌아올 때는 그대로 뒤집는다.
+ *
+ * 미는 것과 함께 흐려진다. 들어오는 화면이 투명한 상태로 시작하므로 그 아래로 물러나는
+ * 화면이 비친다 — 두 장이 겹쳐 도는 것이 한 장만 움직이는 것보다 앞뒤가 분명하다.
+ */
+/* 화면 한 장. .mm-viewport 안에서 절대 배치된다. */
+.mm-page {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--mm-bg-surface);
+}
+
+@keyframes mm-page-enter {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+@keyframes mm-page-exit {
+  to {
+    transform: translateX(-25%);
+    opacity: 0;
+  }
+}
+@keyframes mm-page-pop-enter {
+  from {
+    transform: translateX(-25%);
+    opacity: 0;
+  }
+}
+@keyframes mm-page-pop-exit {
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+@keyframes mm-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes mm-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes mm-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+@keyframes mm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes mm-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.mm-page--enter,
+.mm-page--pop-enter {
+  animation: mm-page-enter var(--mm-nav-duration) var(--mm-motion-standard);
+}
+/* 물러나는 화면은 끝 자리를 지킨 채 지워진다(`forwards`). 마지막 프레임에 제자리로
+   돌아왔다가 사라지면 한 번 튄다. 미끄러져 나가는 동안 눌리지도 않는다. */
+.mm-page--exit,
+.mm-page--pop-exit {
+  animation: mm-page-exit var(--mm-nav-duration) var(--mm-motion-standard) forwards;
+  pointer-events: none;
+}
+.mm-page--pop-enter {
+  animation-name: mm-page-pop-enter;
+}
+.mm-page--pop-exit {
+  animation-name: mm-page-pop-exit;
+}
+.mm-anim-fade {
+  animation: mm-fade-in 220ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mm-page--enter,
+  .mm-page--exit,
+  .mm-page--pop-enter,
+  .mm-page--pop-exit,
+  .mm-anim-fade {
+    animation: none;
+  }
+}
+
+/* 스크린리더 전용 */
+.mm-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}

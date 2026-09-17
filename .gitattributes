@@ -1,0 +1,12 @@
+# 텍스트는 저장소에 LF 로 둔다. 윈도우에서 받아 쓸 때만 CRLF 가 된다.
+* text=auto eol=lf
+
+# 아래는 그대로 둔다 — 바꾸면 깨진다.
+*.png binary
+*.webp binary
+*.jpg binary
+*.otf binary
+*.ttf binary
+*.woff2 binary
+*.glb binary
+*.wasm binary

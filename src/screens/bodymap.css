@@ -1,0 +1,257 @@
+/* 인체도
+ * 기본은 3D(three.js + body.glb). WebGL 을 못 쓰면 이미지 + 좌표 핫스팟으로 되돌린다.
+ */
+
+/* ── 3D ────────────────────────────────────────────────────────── */
+.mm-body3d {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  touch-action: none;
+}
+.mm-body3d:active {
+  cursor: grabbing;
+}
+.mm-body3d__loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mm-s10);
+  font-size: 13px;
+  color: var(--mm-fg-muted);
+  pointer-events: none;
+}
+.mm-body3d__fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: var(--mm-s20);
+  text-align: center;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--mm-fg-muted);
+}
+
+/* ── 2D 대체 ───────────────────────────────────────────────────── */
+
+/* 회색 판. 폭은 화면 전체, 높이는 고정. */
+.mm-bodymap-frame {
+  position: relative;
+  width: 100%;
+  margin-top: var(--mm-s16);
+  background: var(--mm-bg-subtle);
+  border-radius: var(--mm-radius-lg);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+/* 이미지와 같은 종횡비를 유지하는 안쪽 상자. 핫스팟 좌표가 이 상자를 기준으로 한다. */
+.mm-bodymap {
+  position: relative;
+  height: 100%;
+  max-width: 100%;
+}
+
+.mm-bodymap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* 앱 화면의 회색 톤. 원본 webp 는 베이지다. */
+  filter: grayscale(1) contrast(0.95) brightness(1.04);
+  pointer-events: none;
+}
+
+.mm-bodydot {
+  position: absolute;
+  /* 누르는 자리는 28px 로 두고 보이는 점은 그 안의 ::before 다. 3D 점과 같은 크기(≈10px). */
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: transparent;
+}
+
+.mm-bodydot::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--mm-neutral-900);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.85);
+  transition:
+    transform 140ms ease,
+    background-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.mm-bodydot:hover::before {
+  transform: scale(1.15);
+}
+
+.mm-bodydot--on::before {
+  background: var(--mm-bg-primary);
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.95),
+    0 0 0 7px rgba(85, 102, 210, 0.28);
+  transform: scale(1.2);
+}
+
+
+.mm-bodymap__hint:empty {
+  display: none;
+}
+
+/* ── 앵커 → 구역 확대 ──────────────────────────────────────────
+ * 원본 `BodyMapCardTransition`.
+ *
+ * 전신 이미지와 확대 이미지는 서로 다른 파일이라 하나에서 다른 하나로 이어 확대할 수 없다.
+ * 대신 **짚은 점을 축으로 전신을 밀어내고** 확대 이미지를 조금 큰 상태에서 제자리로
+ * 들여보낸다. 카메라가 그 점으로 들어가는 것처럼 읽힌다.
+ *
+ * 판 높이가 부위마다 달라서 크기는 애니메이션하지 않는다(원본 `SizeTransform` 의 `snap`).
+ * 나가는 층을 띄워 두면 높이가 들어오는 층을 따라 바로 바뀐다 — 높이까지 움직이면 아래
+ * 여백이 함께 늘었다 줄어든다.
+ */
+.mm-bodyzoom {
+  position: relative;
+}
+.mm-bodyzoom__layer--out {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: mm-zoom-fade-out var(--mm-zoom-duration) var(--mm-motion-standard) forwards;
+}
+.mm-bodyzoom__layer--in {
+  animation: mm-zoom-fade-in var(--mm-zoom-duration) var(--mm-motion-standard);
+}
+
+@keyframes mm-zoom-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes mm-zoom-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* 축을 짚은 점에 두는 것이 이 효과의 핵심이다. 가운데를 축으로 하면 어느 부위를 짚어도
+   같은 움직임이 나와서 확대라기보다 화면 교체로 보인다.
+
+   축은 **판 안의 비율**이라 이미지 상자에 걸어야 한다. 바깥 층에 걸면 이미지가 층 안에
+   가운데 놓이면서 남는 좌우 여백만큼 축이 어긋난다. */
+.mm-bodyzoom__layer--body-exit .mm-bodymap,
+.mm-bodyzoom__layer--body-enter .mm-bodymap {
+  transform-origin: var(--mm-zoom-origin, 50% 50%);
+}
+.mm-bodyzoom__layer--body-exit .mm-bodymap {
+  animation: mm-zoom-body-exit var(--mm-zoom-duration) var(--mm-motion-standard) forwards;
+}
+.mm-bodyzoom__layer--body-enter .mm-bodymap {
+  animation: mm-zoom-body-enter var(--mm-zoom-duration) var(--mm-motion-standard);
+}
+.mm-bodyzoom__layer--detail-exit .mm-bodymap {
+  animation: mm-zoom-detail-exit var(--mm-zoom-duration) var(--mm-motion-standard) forwards;
+}
+.mm-bodyzoom__layer--detail-enter .mm-bodymap {
+  animation: mm-zoom-detail-enter var(--mm-zoom-duration) var(--mm-motion-standard);
+}
+
+/* 전신은 크게 밀어내고(1.6), 확대 판은 조금만 움직인다(1.12). 둘이 같은 몫으로 움직이면
+   어느 쪽이 들어가고 나오는지가 아니라 두 장이 겹쳐 바뀐 것으로 보인다. */
+@keyframes mm-zoom-body-exit {
+  to {
+    transform: scale(1.6);
+  }
+}
+@keyframes mm-zoom-body-enter {
+  from {
+    transform: scale(1.6);
+  }
+}
+@keyframes mm-zoom-detail-exit {
+  to {
+    transform: scale(1.12);
+  }
+}
+@keyframes mm-zoom-detail-enter {
+  from {
+    transform: scale(1.12);
+  }
+}
+
+/* 멀미나 주의력 문제로 전환 효과를 끈 사람에게는 즉시 바뀐다. */
+@media (prefers-reduced-motion: reduce) {
+  .mm-bodyzoom__layer--out,
+  .mm-bodyzoom__layer--in,
+  .mm-bodyzoom__layer .mm-bodymap {
+    animation: none;
+  }
+  .mm-bodyzoom__layer--out {
+    opacity: 0;
+  }
+}
+
+/* 좌우 안내(`OrientationLabel`). 앞면은 화면 왼쪽이 본인의 오른쪽이라 반대로 읽힌다 — 그
+   혼동을 막는 것이 유일한 목적이라 뒷면과 좌우가 갈린 확대 판에는 붙이지 않는다.
+   Label/S · fg/muted · 흰 면 · 반경 8 · 좌우 6 상하 2 · 안쪽 12. 스크린 리더에는 읽히지 않는다. */
+.mm-bodymap__orient {
+  position: absolute;
+  top: var(--mm-s12);
+  padding: var(--mm-s2) var(--mm-s6);
+  border-radius: var(--mm-radius-xs);
+  background: var(--mm-bg-surface);
+  color: var(--mm-fg-muted);
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 16px;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  z-index: 1;
+}
+.mm-bodymap__orient--start {
+  left: var(--mm-s12);
+}
+.mm-bodymap__orient--end {
+  right: var(--mm-s12);
+}
+/* 3D 판의 "고른 부위 지우기". Tonal M 이 오른쪽 위 8 에 선다. */
+.mm-bodymap__reset {
+  position: absolute;
+  top: var(--mm-s8);
+  right: var(--mm-s8);
+  z-index: 1;
+}
+
+/* 고른 부위 캡션(`SelectionCaption`). 판 안 아래 가운데 12 에 Label/M · 어두운 pill(반경 16 ·
+   좌우 12 상하 6). 고른 것이 판 밖 칩이 아니라 판 위에 적혀야 무엇을 짚었는지 그림과 함께 읽힌다. */
+.mm-bodymap__caption {
+  position: absolute;
+  bottom: var(--mm-s12);
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: calc(100% - 24px);
+  padding: var(--mm-s6) var(--mm-s12);
+  border-radius: var(--mm-radius-md);
+  background: var(--mm-bg-inverse);
+  color: var(--mm-fg-on-inverse);
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  z-index: 1;
+}
