@@ -3,7 +3,7 @@ import { Navigate, Route, Routes, useLocation, useNavigationType } from 'react-r
 import type { Location } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import { StoreProvider, useStore } from './store/store'
-import { analyticsPath, analyticsRoute } from './lib/analytics'
+import { analyticsPath, analyticsRoute, stripHash } from './lib/analytics'
 import { trackLocation } from './lib/flow'
 import { Toast } from './components/ui'
 import { PhoneStage, PunchHole, StatusBar } from './components/PhoneFrame'
@@ -187,7 +187,11 @@ function Router() {
       </div>
       {/* 어느 화면이 얼마나 열렸는지. 경로를 손으로 넘기는 까닭은 `lib/analytics.ts` 에 적었다 —
           `HashRouter` 라 그냥 두면 전부 `/app/` 한 줄로 뭉친다. */}
-      <Analytics path={analyticsPath(location.pathname)} route={analyticsRoute(location.pathname)} />
+      <Analytics
+        path={analyticsPath(location.pathname)}
+        route={analyticsRoute(location.pathname)}
+        beforeSend={stripHash}
+      />
     </div>
   )
 }

@@ -12,6 +12,8 @@
  * 줄이 id 수만큼 늘어난다. 무엇이 많이 열렸는지 보려면 묶인 쪽이 필요하다.
  */
 
+import type { BeforeSend } from '@vercel/analytics'
+
 /** id 가 붙는 주소를 자리표시자로 바꾼다. `/card/card_demo` → `/card/:id` */
 const PATTERNS: [RegExp, string][] = [
   [/^\/card\/(?!new$)[^/]+$/, '/card/:id'],
@@ -29,3 +31,12 @@ export function analyticsRoute(pathname: string): string {
   const hit = PATTERNS.find(([re]) => re.test(pathname))
   return analyticsPath(hit ? hit[1] : pathname)
 }
+
+/**
+ * 보내는 주소에서 해시를 뗀다.
+ *
+ * 스크립트가 주소를 만드는 방식이 `location.href` 에서 경로만 갈아 끼우는 것이라, 넘긴
+ * `path` 를 얹어도 해시가 뒤에 남는다 — `…/app/home#/home` 처럼 같은 화면이 두 번 적힌다.
+ * 대시보드에 한 가지 꼴로만 보이도록 여기서 떼어 낸다.
+ */
+export const stripHash: BeforeSend = (event) => ({ ...event, url: event.url.split('#')[0] })
