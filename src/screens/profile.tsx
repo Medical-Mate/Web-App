@@ -22,9 +22,6 @@ const SETTINGS = [
   S.my_profile_setting_handoff_brightness,
 ]
 
-/** 시안 1s-1 이 그린 초기값. */
-const SETTING_DEFAULTS = [true, true, false]
-
 /**
  * 건강 정보 요약 한 줄.
  *
@@ -46,7 +43,6 @@ export function MyProfileScreen() {
   const navigate = useNavigate()
   const { state, signOut, resetAll } = useStore()
   const [withdraw, setWithdraw] = useState(false)
-  const [toggles, setToggles] = useState(SETTING_DEFAULTS)
 
   const birthYear = new Date().getFullYear() - state.profile.age + 1
   const health = state.health
@@ -88,16 +84,20 @@ export function MyProfileScreen() {
           <KvRow label={S.my_profile_health_allergies} value={summaryText(health.allergies)} tone="link" />
         </div>
 
+        {/* 설정 — **모두 꺼진 채로 잠근다.**
+         *
+         * 셋 다 이 데모에서 할 수 없는 일이라, 켜지는 순간 화면이 거짓말을 한다. 특히 알림은
+         * 시안의 기본값이 켜짐인데 알림 기능 자체가 없다 — 켜져 있으면 "내일 알려주겠구나"
+         * 하고 믿고, 진료를 놓치는 건 실제 손해다. 밝기는 브라우저가 기기 설정을 만질 수
+         * 없고, 자동 저장은 이미 늘 저장하므로 끄는 쪽이 오히려 거짓이다.
+         *
+         * **꺼진 채로 두면 셋 다 사실이다.** 그래서 지우지 않고 잠근다 — 무엇을 하려는
+         * 앱인지는 그대로 보이고, 못 하는 것만 못 하는 것으로 보인다. 이유는 아래 한 줄이
+         * 든다. 스위치가 반응하는데 아무 일이 없는 것보다, 처음부터 잠겨 있는 편이 낫다. */}
         <SectionHeader title={S.my_profile_settings} />
         <div className="mm-rowcard mm-rowcard--settings">
-          {SETTINGS.map((label, i) => (
-            <button
-              key={label}
-              className={`mm-switch${toggles[i] ? ' mm-switch--on' : ''}`}
-              role="switch"
-              aria-checked={toggles[i]}
-              onClick={() => setToggles((t) => t.map((v, j) => (j === i ? !v : v)))}
-            >
+          {SETTINGS.map((label) => (
+            <button key={label} className="mm-switch" role="switch" aria-checked={false} disabled>
               <span className="mm-switch__label">{label}</span>
               <span className="mm-switch__track">
                 <span className="mm-switch__thumb" />
@@ -105,6 +105,7 @@ export function MyProfileScreen() {
             </button>
           ))}
         </div>
+        <p className="mm-body-s mm-settings__note">{S.my_profile_settings_disabled}</p>
 
         {/* 계정에서 나가는 두 가지.
             회원탈퇴는 시안에 없다. 그렇다고 다른 화면에 흩어 두면 로그아웃과 탈퇴가

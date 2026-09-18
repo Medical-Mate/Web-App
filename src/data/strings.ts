@@ -292,6 +292,8 @@ export const S = {
   "my_profile_setting_visit_reminder": "진료 하루 전 알림",
   "my_profile_setting_card_auto_save": "브리핑 카드 자동 저장",
   "my_profile_setting_handoff_brightness": "진료실 화면 밝기 최대",
+  /* 웹 데모에만 있는 줄. 원본 `strings.xml` 에는 없다 — 앱에서는 세 설정이 다 동작한다. */
+  "my_profile_settings_disabled": "웹 데모에서는 켤 수 없어요",
   "health_edit_title": "건강 정보 수정",
   "health_edit_notice_title": "바꾸면 다음 브리핑 카드부터 반영돼요",
   "health_edit_notice_body": "이미 만든 카드는 그대로 남고,\n새로 만드는 카드에 적용됩니다.",

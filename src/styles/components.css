@@ -1866,6 +1866,28 @@
 .mm-switch--on .mm-switch__thumb {
   transform: translateX(18px);
 }
+/* 잠긴 스위치. 만질 수 없다는 것이 **누르기 전에** 보여야 한다 — 눌러 본 뒤에 알게 되면
+   그건 잠긴 것이 아니라 고장이다. 글자와 트랙을 함께 가라앉히고 손 모양도 거둔다. */
+.mm-switch:disabled {
+  cursor: default;
+}
+.mm-switch:disabled .mm-switch__label {
+  color: var(--mm-fg-muted);
+}
+.mm-switch:disabled .mm-switch__track {
+  background: var(--mm-bg-subtle);
+}
+.mm-switch:disabled .mm-switch__thumb {
+  background: var(--mm-border-default);
+  box-shadow: none;
+}
+
+/* 잠근 이유. 설정 판 바로 아래에 붙여서 무엇에 대한 말인지 자리로 알게 한다. */
+.mm-settings__note {
+  margin-top: var(--mm-s8);
+  padding: 0 var(--mm-s4);
+  color: var(--mm-fg-subtle);
+}
 
 /* ── 묻고 싶은 것 블록 (시안 1e-1) ───────────────────────────────
  * 연보라 면 위에 흰 알약 줄이 얹힌다. 카드 본문의 KV 와 결이 다르게 둔 자리다.
