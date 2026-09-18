@@ -403,13 +403,18 @@ export function ClinicConfirmScreen() {
           <hr className="mm-divider" />
         </div>
 
-        {/* 시안은 글자가 콘텐츠 왼쪽 끝에 붙는다. 버튼의 좌우 여백 20을 그만큼 왼쪽으로
-            물려 글자를 그 자리에 두고 터치 영역은 그대로 남긴다. */}
+        {/* 시안은 글자가 콘텐츠 왼쪽 끝에 붙고, 구분선에서 20 아래에 선다.
+            버튼의 안쪽 여백만큼 위와 왼쪽으로 물려서 **글자를 그 자리에 두고** 누르는 자리는
+            48 로 남긴다 — 위로 물리는 값은 (버튼 높이 − 글줄 20) / 2 다. */}
         <div style={{ display: 'flex' }}>
           <Button
             variant="ghost"
             size="m"
-            style={{ width: 'auto', marginLeft: 'calc(-1 * var(--mm-s20))' }}
+            style={{
+              width: 'auto',
+              marginLeft: 'calc(-1 * var(--mm-s20))',
+              marginTop: 'calc((var(--mm-control-md) - 20px) / -2)',
+            }}
             onClick={() =>
               navigate('/hospital?purpose=after', {
                 state: {

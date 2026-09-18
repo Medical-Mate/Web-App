@@ -211,9 +211,13 @@
 .mm-btn--outline:active:not(:disabled) {
   background: var(--mm-bg-subtle);
 }
+/* 면이 없는 버튼. **글자는 `fg/subtle` 이다.**
+   브랜드색으로 두면 링크와 구별되지 않는다 — 문서가 "링크와 버튼은 색이 아니라 면 유무로
+   갈린다"고 적는데, Ghost 는 면이 없어서 색까지 같으면 둘이 한 가지로 보인다.
+   원본 `MedicalMateButtonType.GHOST` 도 세 크기 모두 `fgSubtle` 이다. */
 .mm-btn--ghost {
   background: transparent;
-  color: var(--mm-fg-primary);
+  color: var(--mm-fg-subtle);
 }
 .mm-btn--danger {
   background: var(--mm-bg-danger);
@@ -250,11 +254,15 @@
 }
 
 /* ── Bottom CTA Bar ────────────────────────────────────────────── */
+/* 하단 CTA.
+ *
+ * **그림자를 두지 않는다.** 시안의 Footer 는 테두리도 그림자도 없는 면이다. 원본 안드로이드는
+ * `MedicalMateBottomCtaBar` 의 불투명 변형에 `Elevation/Float` 을 걸지만, 웹에서는 그 그림자가
+ * 위쪽으로 번져 푸터가 따로 붙은 판처럼 읽힌다. 스크롤 내용과 가르는 일은 면이 한다. */
 .mm-cta {
   flex: 0 0 auto;
   padding: var(--mm-s12) var(--mm-gutter) var(--mm-safe-bottom);
   background: var(--mm-bg-surface);
-  box-shadow: var(--mm-elev-float);
   position: relative;
   z-index: 3;
 }

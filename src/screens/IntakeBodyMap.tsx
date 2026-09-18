@@ -205,7 +205,7 @@ export function IntakeBodyMapScreen() {
               : S.intake_body_part_question}
         </h2>
         {description && (
-          <p className="mm-body-m" style={{ marginTop: 8, color: 'var(--mm-fg-subtle)' }}>{description}</p>
+          <p className="mm-body-m mm-bodymap__desc">{description}</p>
         )}
 
         {mode === 'map3d' ? (
@@ -320,9 +320,7 @@ export function IntakeBodyMapScreen() {
                 {notice3d}
               </p>
             )}
-            <p className="mm-body-s" style={{ color: 'var(--mm-fg-muted)', marginTop: 10, textAlign: 'center' }}>
-              {S.body_map_3d_description}
-            </p>
+            <p className="mm-body-s mm-bodymap__guide">{S.body_map_3d_description}</p>
           </>
         ) : mode === 'image' ? (
           <>

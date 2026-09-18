@@ -111,6 +111,29 @@
   display: none;
 }
 
+/* 화면 머리의 설명문.
+ *
+ * **낱말 안에서 자르지 않는다**(`word-break: keep-all`). 그냥 흘리면 "오므리면" 이 "오므리 /
+ * 면" 으로 갈려 읽다 걸린다. 한글은 낱말 사이에서만 넘겨야 한다. */
+.mm-bodymap__desc {
+  margin-top: 8px;
+  color: var(--mm-fg-subtle);
+  word-break: keep-all;
+  text-wrap: pretty;
+}
+
+/* 3D 판 아래의 조작 안내.
+ *
+ * **줄 길이를 고르게 나눈다**(`text-wrap: balance`). 그냥 흘리면 마지막 낱말만 둘째 줄로
+ * 떨어져("…커져 / 요.") 글이 잘린 것처럼 보인다. 낱말 안에서는 자르지 않는다. */
+.mm-bodymap__guide {
+  margin-top: 10px;
+  color: var(--mm-fg-muted);
+  text-align: center;
+  word-break: keep-all;
+  text-wrap: balance;
+}
+
 /* ── 앵커 → 구역 확대 ──────────────────────────────────────────
  * 원본 `BodyMapCardTransition`.
  *
