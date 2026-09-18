@@ -180,7 +180,7 @@ export function OnboardingScreen() {
       noNav
       surface
       bottom={
-        <BottomCta plain>
+        <BottomCta>
           <Button onClick={next}>{last ? S.onboarding_start : S.onboarding_next}</Button>
         </BottomCta>
       }
@@ -340,7 +340,7 @@ export function ProfileSetupScreen() {
       onBack={goBack}
       surface
       bottom={
-        <BottomCta plain>
+        <BottomCta>
           <Button onClick={goNext}>{last ? S.profile_setup_done : S.profile_setup_next}</Button>
         </BottomCta>
       }

@@ -178,8 +178,16 @@ export function Button({
 }
 
 /** 하단 고정 CTA */
-export function BottomCta({ children, plain }: { children: ReactNode; plain?: boolean }) {
-  return <div className={`mm-cta${plain ? ' mm-cta--plain' : ''}`}>{children}</div>
+/**
+ * 하단 CTA 바. 원본 `MedicalMateBottomCtaBar`.
+ *
+ * **면은 하나뿐이다 — `bg/surface`.** 원본은 불투명이면 `bgSurface`, 유리면 `bgSurface` 의
+ * 78% 로 두 갈래인데 둘 다 같은 색이다. 웹에는 한동안 캔버스색(회색) 변형이 하나 더 있었고,
+ * 본문이 캔버스에 놓이는 화면에서 그것을 썼다. 그러면 흐름 안에서 푸터 색이 화면마다
+ * 달라진다 — 같은 자리의 같은 버튼이 어떤 장에서는 회색 판 위에 서 있었다.
+ */
+export function BottomCta({ children }: { children: ReactNode }) {
+  return <div className="mm-cta">{children}</div>
 }
 
 /* ── Card ──────────────────────────────────────────────────────── */
@@ -385,15 +393,12 @@ export function ListRow({
   badge,
   onClick,
   leading,
-  plain,
 }: {
   title: ReactNode
   sub?: ReactNode
   badge?: ReactNode
   onClick?: () => void
   leading?: ReactNode
-  /** 면을 벗긴 줄. 목록이 곧 본문인 자리(부위 목록)에 쓴다 — 카드가 겹쳐 보이지 않는다. */
-  plain?: boolean
 }) {
   const inner = (
     <>
@@ -408,13 +413,12 @@ export function ListRow({
       {onClick && <Icon name="chevron_right" size="md" style={{ color: 'var(--mm-fg-muted)' }} />}
     </>
   )
-  const cls = `mm-listrow${plain ? ' mm-listrow--plain' : ''}`
   return onClick ? (
-    <button className={cls} onClick={onClick}>
+    <button className="mm-listrow" onClick={onClick}>
       {inner}
     </button>
   ) : (
-    <div className={cls}>{inner}</div>
+    <div className="mm-listrow">{inner}</div>
   )
 }
 

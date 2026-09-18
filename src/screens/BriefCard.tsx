@@ -1,5 +1,5 @@
 /** 1e 브리핑 카드 · 1j-4 카드 목록 */
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Pad, Screen } from '../components/Screen'
 import {
@@ -224,6 +224,21 @@ export function BriefCardScreen() {
   }, [id, isNew, state.cards, state.intake, state.health, hospitalFromNav])
   const card = built && isNew && override ? { ...built, ...override } : built
 
+  /* 병원 찾기에서 고르고 돌아온 것을 **저장된 카드에 쓴다.**
+   *
+   * 새 카드는 조립이 이 값을 받아 가지만(`buildCard`), 저장된 카드는 스토어에서 그대로
+   * 읽어 오므로 고른 것이 그냥 버려졌다 — `변경`을 눌러 병원을 고르고 와도 화면이 그대로였다.
+   *
+   * 편집 모드의 사본에 담지 않는다. 병원은 `변경`이라는 제 문이 있고 그 문은 편집 모드 밖에도
+   * 서 있다. 사본에 담으면 `확인`을 눌러야 반영되는데, 그 버튼은 이 흐름에 없다. */
+  useEffect(() => {
+    if (!hospitalFromNav || isNew || !built) return
+    const now = built.hospital
+    if (now?.name === hospitalFromNav.name && now?.address === hospitalFromNav.address) return
+    updateCard(built.id, { hospital: hospitalFromNav })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hospitalFromNav, isNew, built])
+
   if (!card) {
     return (
       <Screen title={S.brief_card_title} onBack={() => navigate('/home')} surface>
@@ -313,7 +328,7 @@ export function BriefCardScreen() {
         editing ? (
           /* 편집 중 하단은 삭제 하나다. 사본을 옮기는 것은 Nav 우측 `확인`이 하고, 되돌리는
              것은 `취소`가 한다. 저장하기를 함께 두면 확인과 저장이 같은 일을 두 번 한다. */
-          <BottomCta plain>
+          <BottomCta>
             <Button variant="danger" onClick={() => setDeleteOpen(true)}>
               {S.brief_card_delete}
             </Button>
@@ -323,7 +338,7 @@ export function BriefCardScreen() {
              보는 자리인데 저장하기가 서 있으면 아직 저장이 안 된 것으로 읽힌다. */
           undefined
         ) : (
-          <BottomCta plain>
+          <BottomCta>
             <Button onClick={save}>{S.brief_card_save}</Button>
           </BottomCta>
         )

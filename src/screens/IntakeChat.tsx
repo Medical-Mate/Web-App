@@ -199,7 +199,7 @@ function SeverityStep() {
       onBack={() => updateIntake({ step: 2 })}
       surface
       bottom={
-        <BottomCta plain>
+        <BottomCta>
           <Button onClick={() => updateIntake({ severity: level, step: 4 })}>{S.intake_next}</Button>
         </BottomCta>
       }
@@ -278,7 +278,7 @@ function QuestionsStep() {
       onBack={() => updateIntake({ step: 3 })}
       surface
       bottom={
-        <BottomCta plain>
+        <BottomCta>
           <Button
             onClick={() => {
               updateIntake({ completed: true })

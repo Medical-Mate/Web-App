@@ -5,21 +5,23 @@
  *
  * WebGL 을 못 쓰는 환경에서는 앱의 비3D 경로와 같은 **이미지 + 좌표 핫스팟**으로
  * 되돌린다(`bodymap_*.webp`). 두 길 모두 같은 부위 온톨로지를 쓴다.
+ *
+ * **목록에서 고르는 길은 두지 않는다.** 한동안 `BodyMapPartList` 를 옮겨 두었는데, 25개 구역을
+ * 좌우까지 펼치면 44줄이라 그 안에서 찾는 것이 그림에서 짚는 것보다 어려웠다. 부위를 이름으로
+ * 고르는 화면은 이 흐름의 다음 장(증상 문답)이 말로 받는다.
  */
-import { Suspense, lazy, useEffect, useMemo, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Pad, Screen } from '../components/Screen'
-import { BottomCta, Button, Chip, Icon, ListRow, Radio, Segmented, StepProgress } from '../components/ui'
+import { BottomCta, Button, Chip, Icon, Segmented, StepProgress } from '../components/ui'
 import { S, fmt } from '../data/strings'
 import {
   BODY_ANCHORS,
   syncBodyMapFromServer,
   BODY_BACK,
   BODY_FRONT,
-  choicesForZone,
   isMirrored,
-  zoneChoices,
   zoneLabel,
 } from '../data/bodyMap'
 import type { BodyAnchor, BodySide, BodyView, BodyZone } from '../data/bodyMap'
@@ -32,8 +34,8 @@ import './bodymap.css'
    나머지 화면의 첫 로딩에는 영향이 없다. */
 const BodyMap3d = lazy(() => import('../components/BodyMap3d'))
 
-/** map3d: 3D 인체도 · image: 이미지 인체도(비3D 대체) · list: 목록에서 고르기 */
-type Mode = 'map3d' | 'image' | 'list'
+/** map3d: 3D 인체도 · image: 이미지 인체도(비3D 대체) */
+type Mode = 'map3d' | 'image'
 
 /** WebGL 여부는 한 번만 본다. 렌더마다 캔버스를 만들 이유가 없다. */
 const WEBGL = supportsWebGl()
@@ -54,21 +56,16 @@ export function IntakeBodyMapScreen() {
   /** 3D 판을 잘못 짚었을 때의 안내. 다음 짚기나 확대가 바뀌면 지운다(`BodyMap3dStep.notice`). */
   const [notice3d, setNotice3d] = useState<string | null>(null)
 
-  /* 제목 아래 설명. 확대 중이면 구역 설명, 3D 판이면 다루는 법이다. 이미지 앵커 모드와 목록에는
+  /* 제목 아래 설명. 확대 중이면 구역 설명, 3D 판이면 다루는 법이다. 이미지 앵커 모드에는
      없다 — 원본 `ImagePicker` 가 `if (zooming)` 에서만 설명을 그린다. */
-  const description =
-    mode === 'list'
-      ? null
-      : anchor
-        ? S.body_map_zone_description
-        : mode === 'map3d'
-          ? S.body_map_3d_description
-          : null
+  const description = anchor
+    ? S.body_map_zone_description
+    : mode === 'map3d'
+      ? S.body_map_3d_description
+      : null
   const [picked, setPicked] = useState<{ anchor: BodyAnchor; zone: BodyZone | null; side: BodySide } | null>(
     null,
   )
-  const [query, setQuery] = useState('')
-
   /* 새로고침 등으로 세션이 없으면 새로 시작한다.
    * 렌더 중에 부르면 StrictMode 에서 두 번 실행되므로 이펙트로 뺀다. */
   useEffect(() => {
@@ -129,66 +126,12 @@ export function IntakeBodyMapScreen() {
     setNotice3d(null)
   }, [anchor, pendingSide])
 
-  const results = useMemo(() => search(query), [query])
-
-  const isPicked = (a: BodyAnchor, z: BodyZone, side: BodySide) =>
-    picked?.anchor.id === a.id && picked.zone?.id === z.id && picked.side === side
-
-  /**
-   * 목록의 앵커 줄.
-   *
-   * 구역이 있는 앵커는 눌러도 골라지지 않고 그 앵커의 구역 목록으로 들어간다. 그 안에서
-   * 고른 부위 이름을 줄의 보조 텍스트에 적는다 — 들어가지 않고도 무엇이 골라져 있는지
-   * 보여야 하고, 앵커 이름만으로는 "다리"까지만 알 수 있다.
-   *
-   * 전신·피부는 구역이 없어서 그 줄이 곧 선택이다. 라디오로 두고, 고른 것을 다시 누르면
-   * 풀린다 — 한 곳만 고르는 화면이라 잘못 눌렀을 때 되돌릴 길이 있어야 한다.
-   */
-  const anchorRows = (a: BodyAnchor) => {
-    if (!a.zones.length) {
-      const on = picked?.anchor.id === a.id && !picked.zone
-      return [
-        <Radio
-          key={a.id}
-          label={a.label}
-          selected={on}
-          onSelect={() => {
-            setAnchor(null)
-            setPicked(on ? null : { anchor: a, zone: null, side: 'CENTER' })
-          }}
-        />,
-      ]
-    }
-    const points = a.points.length ? a.points : [{ side: 'CENTER' as BodySide, x: 0, y: 0 }]
-    return points.map((p) => {
-      /* 좌우 공용 이미지를 쓰는 앵커(팔·다리)는 왼쪽과 오른쪽이 서로 다른 목록이라
-         좌우까지 봐야 한다. 나머지 앵커는 한 이미지에 좌우 구역이 함께 있어서 앵커만
-         맞으면 된다. */
-      const mine = picked?.anchor.id === a.id && (!isMirrored(a) || picked.side === p.side)
-      return (
-        <ListRow
-          key={`${a.id}:${p.side}`}
-          plain
-          title={zoneLabel(a, p.side)}
-          sub={mine && label ? fmt(S.body_map_list_picked, label) : undefined}
-          /* 검색을 함께 닫는다. 검색어가 남아 있으면 화면이 계속 결과를 그려서
-             누른 것이 아무 일도 안 한 것처럼 보인다(`onAnchorFocus`). */
-          onClick={() => {
-            setAnchor(a)
-            setPendingSide(p.side)
-            setQuery('')
-          }}
-        />
-      )
-    })
-  }
-
   return (
     <Screen
       title={S.intake_title}
       onBack={() => navigate('/home')}
       bottom={
-        <BottomCta plain>
+        <BottomCta>
           <Button onClick={goNext} disabled={!picked}>
             {S.intake_next}
           </Button>
@@ -199,11 +142,7 @@ export function IntakeBodyMapScreen() {
         <StepProgress label={S.intake_progress_label} current={1} total={4} />
 
         <h2 className="mm-heading-l" style={{ marginTop: 24 }}>
-          {mode === 'list'
-            ? S.body_map_list_question
-            : anchor
-              ? fmt(S.body_map_zone_question, anchor.label)
-              : S.intake_body_part_question}
+          {anchor ? fmt(S.body_map_zone_question, anchor.label) : S.intake_body_part_question}
         </h2>
         {description && (
           <p className="mm-body-m mm-bodymap__desc">{description}</p>
@@ -249,8 +188,6 @@ export function IntakeBodyMapScreen() {
               <div
                 style={{
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
                   gap: 8,
                   marginTop: 20,
                 }}
@@ -267,9 +204,6 @@ export function IntakeBodyMapScreen() {
                     </Chip>
                   ))}
                 </div>
-                <button className="mm-section__action" onClick={() => setMode('list')}>
-                  {S.body_map_use_list}
-                </button>
               </div>
             )}
 
@@ -322,7 +256,7 @@ export function IntakeBodyMapScreen() {
               </p>
             )}
           </>
-        ) : mode === 'image' ? (
+        ) : (
           <>
             {!anchor && (
               <div style={{ marginTop: 20 }}>
@@ -350,8 +284,6 @@ export function IntakeBodyMapScreen() {
               <div
                 style={{
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
                   gap: 8,
                   marginTop: 14,
                 }}
@@ -368,9 +300,6 @@ export function IntakeBodyMapScreen() {
                     </Chip>
                   ))}
                 </div>
-                <button className="mm-section__action" onClick={() => setMode('list')}>
-                  {S.body_map_use_list}
-                </button>
               </div>
             )}
 
@@ -396,101 +325,6 @@ export function IntakeBodyMapScreen() {
               }}
             </BodyMapCardTransition>
           </>
-        ) : (
-          /* 목록에서 고르기. `BodyMapPartList` 를 옮겼다.
-           *
-           * 인체도는 이미지 위의 좌표를 짚는 조작이라 스크린 리더로는 쓸 수 없다. 확대해도
-           * 손이 떨리면 짚기 어렵고, 그림이 벗은 몸이라 사람 앞에서 열기 부담스러울 수도
-           * 있다. 어느 이유든 같은 부위를 고를 수 있어야 한다.
-           *
-           * 목록도 인체도와 같은 두 단계다. 25개 구역을 좌우까지 펼치면 44줄이 되고, 그
-           * 안에서 찾는 것이 그림에서 짚는 것보다 어렵다.
-           */
-          <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {/* 모드 전환은 두 화면에서 같은 동작이라 같은 무게로 둔다. 인체도 쪽이 칩 줄
-                오른쪽의 Ghost S 라 여기만 전체 폭 버튼이면 같은 일이 다르게 보인다. */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <Button
-                variant="ghost"
-                size="s"
-                onClick={() => {
-                  setQuery('')
-                  setMode(WEBGL ? 'map3d' : 'image')
-                }}
-              >
-                {S.body_map_use_image}
-              </Button>
-            </div>
-
-            <div className="mm-search">
-              <span className="mm-search__icon">
-                <Icon name="search" size="md" />
-              </span>
-              <input
-                className="mm-search__input"
-                placeholder={S.body_map_search_placeholder}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              {query && (
-                <button
-                  className="mm-iconbtn mm-iconbtn--sm"
-                  onClick={() => setQuery('')}
-                  aria-label={S.body_map_search_clear}
-                >
-                  <Icon name="close" size="md" style={{ color: 'var(--mm-fg-muted)' }} />
-                </button>
-              )}
-            </div>
-
-            {query ? (
-              results.length === 0 ? (
-                /* 검색어가 부위 이름이 아닐 때다("감기"). 그때만 안내를 둔다. */
-                <p className="mm-body-m" style={{ color: 'var(--mm-fg-subtle)' }}>
-                  {S.body_map_search_empty}
-                </p>
-              ) : (
-                /* 줄의 모양은 목록과 같다. 구역은 고르는 줄이고 앵커는 들어가는 줄이다.
-                   검색이 하는 일은 찾는 것까지이고, 고르는 방식까지 바꾸면 두 길이 다르게
-                   동작한다. */
-                <div className="mm-partlist">
-                  {results.flatMap((hit) =>
-                    hit.zone
-                      ? choicesForZone(hit.anchor, hit.zone).map((c) => (
-                          <Radio
-                            key={`${hit.anchor.id}:${c.zone.id}:${c.side}`}
-                            label={zoneLabel(c.zone, c.side)}
-                            selected={isPicked(hit.anchor, c.zone, c.side)}
-                            onSelect={() => setPicked({ anchor: hit.anchor, zone: c.zone, side: c.side })}
-                          />
-                        ))
-                      : anchorRows(hit.anchor),
-                  )}
-                </div>
-              )
-            ) : anchor ? (
-              /* 고른 앵커의 구역들. 좌우가 갈리는 구역은 두 줄이다.
-                 원본은 여기 구역 머리에 앵커 이름을 두는데, 웹앱은 화면 제목이 이미
-                 "○○ 어디가 아프세요?" 라 같은 말을 두 번 적지 않는다. */
-              <>
-                <div className="mm-partlist">
-                  {zoneChoices(anchor, pendingSide).map((c) => (
-                    <Radio
-                      key={`${c.zone.id}:${c.side}`}
-                      label={zoneLabel(c.zone, c.side)}
-                      selected={isPicked(anchor, c.zone, c.side)}
-                      onSelect={() => setPicked({ anchor, zone: c.zone, side: c.side })}
-                    />
-                  ))}
-                </div>
-                <Button variant="outline" size="m" onClick={() => setAnchor(null)}>
-                  {S.body_map_other_anchor}
-                </Button>
-              </>
-            ) : (
-              <div className="mm-partlist">{BODY_ANCHORS.flatMap((a) => anchorRows(a))}</div>
-            )}
-          </div>
         )}
       </Pad>
     </Screen>
@@ -665,38 +499,4 @@ function ZonePicker({
       </div>
     </div>
   )
-}
-
-/* ── 부위 검색 ─────────────────────────────────────────────────── */
-
-interface Hit {
-  anchor: BodyAnchor
-  zone: BodyZone | null
-}
-
-function flatten(): Hit[] {
-  const out: Hit[] = []
-  BODY_ANCHORS.forEach((a) => {
-    /* 앵커 이름도 찾는다. "팔"을 쳤을 때 팔 목록으로 들어가는 줄이 나와야 한다. */
-    out.push({ anchor: a, zone: null })
-    a.zones.forEach((z) => out.push({ anchor: a, zone: z }))
-  })
-  return out
-}
-
-/** 원본 `BodyPartSearch` — 검색어는 300자까지 보고, 결과는 8개까지 낸다. */
-const QUERY_MAX_LENGTH = 300
-const RESULT_LIMIT = 8
-
-/** 이름과 별칭을 함께 본다. 별칭은 화면에 드러나지 않고 검색에서만 쓴다. */
-function search(query: string): Hit[] {
-  const q = query.slice(0, QUERY_MAX_LENGTH).replace(/\s+/g, '')
-  if (!q) return []
-  const match = (label: string, aliases: string[]) => {
-    const target = [label, ...aliases].map((s) => s.replace(/\s+/g, ''))
-    return target.some((t) => t.includes(q) || q.includes(t))
-  }
-  return flatten()
-    .filter((h) => (h.zone ? match(h.zone.label, h.zone.aliases) : match(h.anchor.label, h.anchor.aliases)))
-    .slice(0, RESULT_LIMIT)
 }

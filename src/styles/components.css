@@ -266,10 +266,6 @@
   position: relative;
   z-index: 3;
 }
-.mm-cta--plain {
-  background: var(--mm-bg-surface);
-  box-shadow: none;
-}
 .mm-cta__row {
   display: flex;
   gap: var(--mm-s8);
@@ -291,11 +287,6 @@
     background: rgba(255, 255, 255, 0.82);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-  }
-  .mm-cta--plain {
-    background: rgba(245, 246, 250, 0.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
   }
 }
 
@@ -484,17 +475,6 @@
   box-shadow: var(--mm-elev-card);
   text-align: left;
 }
-/* 면을 벗긴 줄. 담는 판이 이미 본문이면 카드가 한 겹 더 뜨는 것으로 읽힌다.
-   높이도 카드 기준(79)을 버리고 라디오 줄과 같은 54 로 둔다 — 두 목록이 이어서 나오는
-   자리라(대부위 → 세부부위) 줄 높이가 다르면 다른 목록으로 읽힌다. */
-.mm-listrow--plain {
-  min-height: 54px;
-  background: none;
-  box-shadow: none;
-  border-radius: 0;
-  padding: var(--mm-s4) var(--mm-s4) var(--mm-s4) var(--mm-s4);
-}
-
 .mm-listrow__body {
   flex: 1;
   min-width: 0;
@@ -2111,20 +2091,6 @@
   font-size: 17px;
   line-height: 26px;
   color: var(--mm-fg-default);
-}
-
-/* ── 부위 목록(BodyMapPartList) ────────────────────────────────
- * 목록 자체가 이 화면의 본문이라 줄에 면을 두지 않는다. 카드로 두면 판이 겹겹이 떠
- * 무엇을 고르는 자리인지 흐려진다. 대부위 줄은 `mm-listrow--plain`, 세부부위 줄은
- * 라디오이고, 둘 다 선 없이 간격만으로 갈린다.
- */
-.mm-partlist {
-  display: flex;
-  flex-direction: column;
-  gap: var(--mm-s8);
-}
-.mm-partlist > .mm-radio + .mm-radio {
-  margin-top: calc(-1 * var(--mm-s8));
 }
 
 /* ── 행을 담는 카드(1s-1) ──────────────────────────────────────
