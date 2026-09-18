@@ -9,7 +9,7 @@
  */
 import { useNavigate } from 'react-router-dom'
 import { Pad, Screen } from '../components/Screen'
-import { Badge, Button, Card, EmptyState, Icon, ListRow, Logo, SectionHeader } from '../components/ui'
+import { Badge, Button, Card, EmptyState, ListRow, Logo, SectionHeader } from '../components/ui'
 import { S, fmt } from '../data/strings'
 import { markFlowStart } from '../lib/flow'
 import { useStore } from '../store/store'
@@ -221,15 +221,13 @@ export function HomeScreen() {
         className={`mm-homelist${isEmpty ? ' mm-homelist--empty' : ''}`}
         style={{ paddingTop: 8, paddingBottom: 20 }}
       >
-        {/* Figma Header(`399:1342`). 로고가 마스터의 0.8배라 28.8이다. */}
+        {/* Figma Header(`399:1342`). 로고가 마스터의 0.8배라 28.8이다.
+            **알림 아이콘을 두지 않는다.** 이 데모에는 알림이 없다 — 서버가 주지 않고 원본도
+            누르면 아무 일이 없다(`onNotificationClick = {}`). 눌리는 모양으로 서 있으면
+            사람은 누른다. 눌러도 아무 일이 없는 자리는 고장으로 읽힌다. */}
         <header className="mm-homehead">
           <Logo height={28.8} />
           <span style={{ flex: 1 }} />
-          {/* 읽지 않은 알림 표시는 늘 꺼 둔다. 서버가 알림을 주지 않는다. 앱도 누르면 아무 일이
-              없다(`onNotificationClick = {}`). */}
-          <button className="mm-iconbtn" aria-label={S.home_notification} onClick={() => {}}>
-            <Icon name="bell" />
-          </button>
           <span className="mm-homehead__avatar">
             <button
               className="mm-avatar mm-body-l-strong"
