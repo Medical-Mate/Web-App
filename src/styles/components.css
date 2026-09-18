@@ -2724,7 +2724,7 @@
     inset 0 0 0 1.5px var(--mm-border-focus);
 }
 
-/* 시각이 없는 일정 카드는 눌러서 시간을 정하러 간다(`calendar_day_schedule_edit`). */
+/* 일정 카드가 눌리는 때만 붙는다 — 일자 상세가 편집 중일 때다(`calendar_day_schedule_modify`). */
 .mm-dayschedule--tap {
   cursor: pointer;
 }

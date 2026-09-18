@@ -196,13 +196,22 @@ export function BriefCardScreen() {
   const { state, addCard, clearIntake, updateCard, deleteCards } = useStore()
 
   const isNew = id === 'new'
-  const hospitalFromNav = (location.state as { hospital?: CardHospital } | null)?.hospital ?? null
+  const nav = location.state as { hospital?: CardHospital; edit?: boolean } | null
+  const hospitalFromNav = nav?.hospital ?? null
 
   /* 아직 저장하지 않은 카드에서 `확인`한 것. 새 카드는 화면을 열 때마다 문답에서 다시
      조립되므로, 고친 것을 조립 위에 얹어 둔다. 저장하면 이 값이 카드가 된다. */
   const [override, setOverride] = useState<CardDraft | null>(null)
-  /* 있으면 편집 모드다. 모드를 따로 두지 않는다 — 편집 중이라면서 사본이 없는 상태를 만들 수 없어야 한다. */
-  const [draft, setDraft] = useState<CardDraft | null>(null)
+  /* 있으면 편집 모드다. 모드를 따로 두지 않는다 — 편집 중이라면서 사본이 없는 상태를 만들 수 없어야 한다.
+   *
+   * **편집 상태로 바로 열 수 있다**(`state.edit`). 일자 상세가 편집 중일 때 브리핑 카드 줄을
+   * 누르면 여기로 온다 — 고치러 왔으니 `편집`을 한 번 더 누르게 하지 않는다. 사본은 그때
+   * 한 번만 뜬다(초기값). 저장하지 않은 카드(`new`)는 조립이 끝나기 전이라 받지 않는다. */
+  const [draft, setDraft] = useState<CardDraft | null>(() => {
+    if (!nav?.edit || isNew) return null
+    const c = state.cards.find((x) => x.id === id)
+    return c ? { items: c.items, questions: c.questions } : null
+  })
   /* 삭제 확인 대화상자(1e-1-DC). 편집 상태와 분리한다 — 삭제를 취소하면 편집 모드는 그대로 남는다. */
   const [deleteOpen, setDeleteOpen] = useState(false)
 

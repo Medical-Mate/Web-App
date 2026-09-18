@@ -319,13 +319,15 @@ export function CalendarDayScreen() {
     if (changed && appt && todoDraft) setTodos(appt.id, todoDraft)
     setTodoDraft(null)
   }
-  /* 읽는 중에는 **시각이 없는 일정만** 눌러서 고치러 간다(#230). 시간 미정으로 저장하고 나면
-     그 값을 채울 자리가 어디에도 없었다. 시각이 정해진 일정을 그냥 열면 고칠 것이 없는 화면이 뜬다.
-
-     편집 중에는 일정이 있으면 늘 누를 수 있다. 병원을 바꿀 자리가 여기밖에 없어서다 — 일정
-     추가 화면이 병원 · 날짜 · 시간 · 가져갈 카드 · 할 일을 한 번에 들고 있다. */
-  const scheduleEditable = Boolean(appt && !visited && appt.time == null)
-  const scheduleTappable = editing ? Boolean(appt) : scheduleEditable
+  /* 일정 카드는 **편집 중에만** 누른다.
+   *
+   * 읽는 중에는 이 판이 보여 주기만 한다. 원본은 시각이 없는 일정에 한해 읽는 중에도 눌러서
+   * 고치러 갔는데(#230), 웹에서는 그것을 접었다 — Nav 우측에 `편집`이 있는 화면이라 읽는
+   * 중에 누르는 자리가 섞이면 무엇이 눌리는 판인지 알 수 없다. 고치는 길은 한 문으로 모은다.
+   *
+   * 편집 중에는 일정이 있으면 늘 누를 수 있다. 병원 · 날짜 · 시각을 바꿀 자리가 여기밖에
+   * 없어서다 — 일정 추가 화면이 병원 · 날짜 · 시간 · 가져갈 카드 · 할 일을 한 번에 들고 있다. */
+  const scheduleTappable = editing && Boolean(appt)
   const editSchedule = () => appt && navigate('/schedule/new', { state: { appointmentId: appt.id } })
 
   /* 다음 일정.
@@ -409,13 +411,7 @@ export function CalendarDayScreen() {
               className={`mm-dayschedule${scheduleTappable ? ' mm-dayschedule--tap' : ''}`}
               role={scheduleTappable ? 'button' : undefined}
               tabIndex={scheduleTappable ? 0 : undefined}
-              aria-label={
-                scheduleTappable
-                  ? editing
-                    ? S.calendar_day_schedule_modify
-                    : S.calendar_day_schedule_edit
-                  : undefined
-              }
+              aria-label={scheduleTappable ? S.calendar_day_schedule_modify : undefined}
               onClick={scheduleTappable ? editSchedule : undefined}
               onKeyDown={(e) => {
                 if (!scheduleTappable) return
@@ -466,13 +462,16 @@ export function CalendarDayScreen() {
         {card && (
           <>
             <SectionHeader title={visited ? S.calendar_day_card_done : S.calendar_day_card} />
+            {/* 편집 중이면 **카드의 편집 상태로 바로** 연다. 고치려고 들어왔는데 원본이 먼저
+                뜨고 거기서 다시 `편집`을 눌러야 하는 것은 한 걸음이 남는 것이다. 읽는 중에는
+                그대로 카드를 본다. */}
             <ListRow
               title={card.title}
               sub={fmt(S.calendar_day_card_meta, formatDot(card.writtenOn), card.items.length)}
               badge={
                 <Badge>{card.visited ? S.brief_card_status_confirmed : S.brief_card_status_before_visit}</Badge>
               }
-              onClick={() => navigate(`/card/${card.id}`)}
+              onClick={() => navigate(`/card/${card.id}`, editing ? { state: { edit: true } } : undefined)}
             />
           </>
         )}
