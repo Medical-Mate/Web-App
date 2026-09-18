@@ -20,7 +20,7 @@ import {
 } from '../components/ui'
 import { S, fmt } from '../data/strings'
 import { buildCard, patientLine } from '../data/ai'
-import { markFlowStart, popTo, resetTo } from '../lib/flow'
+import { markFlowStart, popPast, popTo, resetTo } from '../lib/flow'
 import { useStore } from '../store/store'
 import { MAX_BRIEF_CARD_QUESTIONS, SEVERITY_LABELS, SEVERITY_NRS, cardRowStatus } from '../lib/types'
 import type { BriefCard as BriefCardModel, CardHospital, CardItem } from '../lib/types'
@@ -303,7 +303,9 @@ export function BriefCardScreen() {
   return (
     <Screen
       title={S.brief_card_title}
-      onBack={() => navigate(-1)}
+      /* 병원을 바꾸러 다녀오면 이 화면도 두 자리에 선다(`replace`). 한 장만 되돌리면
+         같은 화면에 그대로 서고, 저장 전 카드는 고친 것까지 사라진다. */
+      onBack={() => popPast(navigate, location.pathname)}
       action={navAction}
       onAction={onNavAction}
       surface

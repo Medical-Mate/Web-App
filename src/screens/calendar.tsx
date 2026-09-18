@@ -16,7 +16,7 @@ import {
 } from '../components/ui'
 import { S, fmt } from '../data/strings'
 import { recordSummary } from '../data/ai'
-import { markFlowStart, popBackTo } from '../lib/flow'
+import { markFlowStart, popBackTo, popPast } from '../lib/flow'
 import { appointmentsOn, cardsOn, newId, recordsOn, useStore } from '../store/store'
 import type { Appointment, Todo } from '../lib/types'
 import {
@@ -706,7 +706,9 @@ export function ScheduleAddScreen() {
   return (
     <Screen
       title={S.schedule_add_title}
-      onBack={() => navigate(-1)}
+      /* 닫기. 이 화면이 선 자리를 다 걷어낸다 — 병원을 고르고 오면 두 자리에 서 있어서
+         한 장만 되돌리면 적은 것이 없는 아래쪽 사본이 나온다. */
+      onBack={() => popPast(navigate, '/schedule/new')}
       backIcon="close"
       bottom={
         <BottomCta>

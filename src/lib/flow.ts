@@ -99,6 +99,28 @@ export function popBackTo(navigate: NavigateFunction, to: string): void {
 }
 
 /**
+ * **이 화면을 떠난다.** [pathname] 이 잇달아 놓인 자리를 한꺼번에 걷어낸다.
+ *
+ * 한 장만 되돌리는 것(`navigate(-1)`)으로는 닫히지 않는다. 병원 찾기가 제자리에서 부르던
+ * 화면으로 바뀌기 때문에(`replace`) 같은 화면이 두 자리에 서고, 한 장 되돌리면 **아래쪽
+ * 사본**에 그대로 선다. 그 사본은 자리마다 따로 그려지는 판이라(App 의 `key={loc.key}`)
+ * 다시 세워지고, 적어 둔 것이 없는 자리에서 세워지므로 **적은 값이 사라진 것처럼 보인다.**
+ *
+ * 그래서 지금 자리부터 아래로 같은 경로가 이어지는 만큼 세어 한 번에 되감는다. 병원을 두 번
+ * 다녀와도 마찬가지다. 적어 둔 것이 없으면(새로고침 뒤) 한 장만 되돌린다.
+ */
+export function popPast(navigate: NavigateFunction, pathname: string): void {
+  const idx = historyIndex()
+  if (idx === null) {
+    navigate(-1)
+    return
+  }
+  let back = 0
+  while (idx - back >= 0 && visited[idx - back] === pathname) back += 1
+  navigate(-Math.max(back, 1))
+}
+
+/**
  * [base] 가 나올 때까지 되감고 그 위에 [to] 를 얹는다. 원본의
  * `navigate(to) { popUpTo<base>(inclusive = false); launchSingleTop }`.
  *
