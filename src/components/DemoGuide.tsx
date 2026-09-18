@@ -74,6 +74,9 @@ function dayOf(state: AppState, visited: boolean): string {
   return appt ? `/calendar/${appt.date}` : rec ? `/calendar/${rec.visitedOn}` : '/calendar'
 }
 
+/** 묶음 머리를 맨 위로 올릴 때 남겨 두는 윗 여백. 0 이면 글자가 판 끝에 붙는다. */
+const PART_TOP_GAP = 8
+
 interface Part {
   title: string
   steps: Step[]
@@ -228,24 +231,54 @@ export function DemoGuide() {
     navigate('/', { replace: true })
     resetAll()
   }
+  const panelRef = useRef<HTMLElement | null>(null)
   const activeRef = useRef<HTMLLIElement | null>(null)
+  const partRefs = useRef<(HTMLElement | null)[]>([])
 
-  /* 단계가 바뀌면 그 줄이 보이는 자리로 옮긴다. 30줄이라 안내가 스크롤된다. */
+  /** 지금 단계가 속한 묶음. 못 찾으면 -1. */
+  const partIndex = PARTS.findIndex((part, i) => {
+    const start = PARTS.slice(0, i).reduce((sum, x) => sum + x.steps.length, 0)
+    return current > start && current <= start + part.steps.length
+  })
+
+  /* 묶음이 바뀌면 그 머리를 패널 맨 위로 올린다. A 를 다 보고 B 로 넘어가면 B 가 위에 선다.
+     같은 묶음 안에서 단계만 옮길 때는 줄이 보이는 만큼만 움직인다 — 매번 위로 끌어올리면
+     읽던 자리가 흔들린다. */
+  const lastPart = useRef<number | null>(null)
   useEffect(() => {
+    const panel = panelRef.current
+    const moved = partIndex >= 0 && lastPart.current !== null && lastPart.current !== partIndex
+    if (partIndex >= 0) lastPart.current = partIndex
+    if (!panel) return
+    if (moved) {
+      const head = partRefs.current[partIndex]
+      if (head) {
+        /* 자리 계산은 화면 좌표로 한다. `offsetTop` 은 자리잡은 조상이 무엇이냐에 따라 달라진다. */
+        const delta = head.getBoundingClientRect().top - panel.getBoundingClientRect().top
+        panel.scrollTo({ top: panel.scrollTop + delta - PART_TOP_GAP, behavior: 'smooth' })
+        return
+      }
+    }
     activeRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
-  }, [current])
+  }, [current, partIndex])
 
   let n = 0
   return (
-    <aside className="mm-guide" aria-label="화면 안내">
+    <aside className="mm-guide" aria-label="화면 안내" ref={panelRef}>
       <div className="mm-guide__head">
         <div className="mm-guide__title">화면 안내</div>
         <p className="mm-guide__lead">
           화면마다 무엇을 하는 곳인지 적었어요. 줄을 누르면 그 화면으로 가고, 지금 보고 있는 화면이 표시됩니다.
         </p>
       </div>
-      {PARTS.map((part) => (
-        <section key={part.title} className="mm-guide__part">
+      {PARTS.map((part, pi) => (
+        <section
+          key={part.title}
+          className="mm-guide__part"
+          ref={(el) => {
+            partRefs.current[pi] = el
+          }}
+        >
           <h3 className="mm-guide__part-title">{part.title}</h3>
           <ol className="mm-guide__list">
             {part.steps.map((step) => {
