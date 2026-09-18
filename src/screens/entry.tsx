@@ -51,7 +51,23 @@ export function SplashScreen() {
       }}
     >
       <MonoLightLockup />
-      <p className="mm-body-m" style={{ textAlign: 'center' }}>
+      <p
+        className="mm-body-m"
+        style={{
+          textAlign: 'center',
+          /* 문구는 **락업의 보이는 가운데**에 맞춘다.
+           *
+           * 로고 마크의 그림은 48 viewBox 안에서 그보다 작아, 50.4 상자 안에 좌우 10.3 씩
+           * 여백이 남는다. 워드마크는 글자가 상자를 꽉 채우니 락업의 잉크는 왼쪽만 10.3
+           * 들어가 있고, 그래서 상자 가운데(180)와 보이는 가운데(185.1)가 5 어긋난다.
+           * 그냥 가운데로 두면 문구가 로고보다 왼쪽으로 밀린 것으로 보인다.
+           *
+           * 락업은 시안이 둔 자리(상자 가운데)에 그대로 두고 이 줄만 옮긴다. 옮기는 값은
+           * 마크 여백의 절반이고, 간격을 바꿔도 달라지지 않는다 — 간격은 상자 가운데와
+           * 잉크 가운데를 똑같이 밀기 때문이다. */
+          transform: 'translateX(5px)',
+        }}
+      >
         {S.splash_tagline}
       </p>
     </div>
