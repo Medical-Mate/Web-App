@@ -320,7 +320,6 @@ export function IntakeBodyMapScreen() {
                 {notice3d}
               </p>
             )}
-            <p className="mm-body-s mm-bodymap__guide">{S.body_map_3d_description}</p>
           </>
         ) : mode === 'image' ? (
           <>

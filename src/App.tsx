@@ -155,7 +155,7 @@ function Router() {
   const pages = phase.leaving ? [phase.leaving, location] : [location]
 
   return (
-    <div className="mm-phone">
+    <div className={`mm-phone${onBrandSurface ? ' mm-phone--brand' : ''}`}>
       {/* 브랜드색이 전면에 깔린 화면은 상태바까지 그 색이다(원본은 `enableEdgeToEdge`).
           해당하는 것은 스플래시와 등록 완료 둘이다. */}
       <StatusBar dark={onBrandSurface} />

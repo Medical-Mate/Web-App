@@ -1603,6 +1603,10 @@
 }
 /* DESIGN.md 의 `Loading` 의 `Type=Spinner`. 최소 높이 116 · 안쪽 20 · 간격 12 다.
    문구는 `Body/M` · fg/subtle. */
+/* 기다리는 동안의 안내.
+ *
+ * 좌우는 비운다. 담는 자리가 이미 화면 여백 20 만큼 안쪽인데 여기서 또 좁히면
+ * "메모를 소견 · 검사 · 약 · 재방문으로 나누고 있어요" 가 한 줄에 들어가지 못한다(필요 292). */
 .mm-loading {
   display: flex;
   flex-direction: column;
@@ -1610,7 +1614,7 @@
   justify-content: center;
   gap: var(--mm-s12);
   min-height: 116px;
-  padding: var(--mm-s20);
+  padding: var(--mm-s20) 0;
   color: var(--mm-fg-subtle);
   font-size: 15px;
   line-height: 24px;

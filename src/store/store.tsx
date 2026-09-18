@@ -179,15 +179,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         })),
 
       addRecord: (record) => patch((s) => ({ ...s, records: [record, ...s.records] })),
+      /**
+       * 기록을 지운다. **기록만 지운다.**
+       *
+       * 카드와 일정은 남는다. 원본의 안내가 그렇게 적는다 — 카드를 지울 때는 "연결된 진료
+       * 기록은 남고 이 카드는 사라져요", 기록을 지울 때는 "선택한 기록이 사라지고 되돌릴 수
+       * 없어요" 다. 서버도 `DELETE /api/visits/{id}` 가 그 기록 하나만 지운다.
+       *
+       * 카드까지 지우면 홈에서 카드가 사라지고 일자 상세의 `가져갈 브리핑 카드` 칸도 비어,
+       * 일정만 남은 어긋난 화면이 된다. 기록을 지운 날은 다시 **진료 전**이 되는 것이 맞다.
+       */
       deleteRecords: (ids) =>
-        patch((s) => {
-          const cardIds = new Set(s.records.filter((r) => ids.includes(r.id)).map((r) => r.cardId))
-          return {
-            ...s,
-            records: s.records.filter((r) => !ids.includes(r.id)),
-            cards: s.cards.filter((c) => !cardIds.has(c.id)),
-          }
-        }),
+        patch((s) => ({ ...s, records: s.records.filter((r) => !ids.includes(r.id)) })),
     }
   }, [state, toast, showToast])
 
