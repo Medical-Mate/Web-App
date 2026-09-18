@@ -1,3 +1,4 @@
+import { resolve } from 'node:path'
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -12,12 +13,26 @@ export default defineConfig(({ mode }) => {
   const DEFAULT_BACKEND = 'https://d3f36x6ccm838d.cloudfront.net'
   const backend = (loadEnv(mode, process.cwd()).VITE_BACKEND_BASE_URL || DEFAULT_BACKEND).replace(/\/+$/, '')
   const proxy = { '/api': { target: backend, changeOrigin: true } }
+
   return {
     plugins: [react()],
-    base: './',
+    /* 뿌리 기준으로 건다. 문서가 둘이라(`/` 와 `/app/`) 상대 경로를 쓰면 앱 문서가
+       `./favicon.ico` 를 `/app/favicon.ico` 로 찾는다. 도메인 뿌리에 올리는 것이 전제다. */
+    base: '/',
     server: { port: 5173, host: true, proxy },
     /* `vite preview` 는 배포 결과를 흉내 내는 자리다. 프록시가 없으면 배포와 다르게 돈다. */
     preview: { port: 4173, proxy },
-    build: { outDir: 'dist', assetsInlineLimit: 0 },
+    build: {
+      outDir: 'dist',
+      assetsInlineLimit: 0,
+      rollupOptions: {
+        /* 문서 둘. 뿌리는 진입 온보딩이고, 시연 앱은 그 아래 `/app/` 이다 —
+           온보딩의 `직접 시연해보기` 가 가리키는 자리다(`DEMO_URL`). */
+        input: {
+          intro: resolve(__dirname, 'index.html'),
+          app: resolve(__dirname, 'app/index.html'),
+        },
+      },
+    },
   }
 })

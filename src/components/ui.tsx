@@ -385,12 +385,15 @@ export function ListRow({
   badge,
   onClick,
   leading,
+  plain,
 }: {
   title: ReactNode
   sub?: ReactNode
   badge?: ReactNode
   onClick?: () => void
   leading?: ReactNode
+  /** 면을 벗긴 줄. 목록이 곧 본문인 자리(부위 목록)에 쓴다 — 카드가 겹쳐 보이지 않는다. */
+  plain?: boolean
 }) {
   const inner = (
     <>
@@ -405,12 +408,13 @@ export function ListRow({
       {onClick && <Icon name="chevron_right" size="md" style={{ color: 'var(--mm-fg-muted)' }} />}
     </>
   )
+  const cls = `mm-listrow${plain ? ' mm-listrow--plain' : ''}`
   return onClick ? (
-    <button className="mm-listrow" onClick={onClick}>
+    <button className={cls} onClick={onClick}>
       {inner}
     </button>
   ) : (
-    <div className="mm-listrow">{inner}</div>
+    <div className={cls}>{inner}</div>
   )
 }
 

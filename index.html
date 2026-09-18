@@ -1,38 +1,613 @@
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
-    <meta name="theme-color" content="#5566D2" />
-    <!-- 탭 아이콘. 브라우저마다 읽는 것이 달라 셋을 다 둔다 — 사파리는 SVG 파비콘을 쓰지 않고,
-         `/favicon.ico` 는 링크가 없어도 브라우저가 알아서 찾는 자리다. -->
-    <link rel="icon" href="/favicon.ico" sizes="32x32" />
-    <link rel="icon" type="image/svg+xml" href="/icons/ic_logo_symbol.svg" />
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/favicon-192.png" />
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-    <title>진료메이트 — 진료실에서 하고 싶은 말, 미리 정리해요</title>
-    <meta
-      name="description"
-      content="아픈 곳을 짚고 AI와 대화하면 진료 전에 보여줄 브리핑 카드로 정리됩니다. 진료 후에 들은 말도 소견·검사·약·재방문으로 나눠 기록해요."
-    />
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>진료메이트 · 웹 데모 진입</title>
+<meta name="description" content="진료메이트 웹 데모 진입 — 스플래시와 2단계 온보딩" />
+<meta name="theme-color" content="#5566d2" />
+<link rel="icon" href="/favicon.ico" sizes="32x32" />
+<link rel="icon" type="image/svg+xml" href="/icons/ic_logo_symbol.svg" />
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/favicon-192.png" />
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
 
-    <!-- 링크를 주고받을 때 뜨는 미리보기. 이미지는 public/og.png 다. -->
-    <meta property="og:type" content="website" />
-    <meta property="og:locale" content="ko_KR" />
-    <meta property="og:site_name" content="진료메이트" />
-    <meta property="og:title" content="진료메이트 — 진료실에서 하고 싶은 말, 미리 정리해요" />
-    <meta
-      property="og:description"
-      content="아픈 곳을 짚고 AI와 대화하면 진료 전에 보여줄 브리핑 카드로 정리됩니다."
-    />
-    <meta property="og:url" content="https://medicalmate-web.vercel.app/" />
-    <meta property="og:image" content="https://medicalmate-web.vercel.app/og.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta name="twitter:card" content="summary_large_image" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<!-- 주고받는 링크는 이 뿌리 주소다. 미리보기 그림은 /og.png. -->
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="ko_KR" />
+<meta property="og:site_name" content="진료메이트" />
+<meta property="og:title" content="진료메이트 — 진료실에서 하고 싶은 말, 미리 정리해요" />
+<meta
+  property="og:description"
+  content="아픈 곳을 짚고 AI와 대화하면 진료 전에 보여줄 브리핑 카드로 정리됩니다."
+/>
+<meta property="og:url" content="https://medicalmate-web.vercel.app/" />
+<meta property="og:image" content="https://medicalmate-web.vercel.app/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+<style>
+  /* ── 진료메이트 Semantic 토큰 (디자인.md 2.3 / 2.4) ─────────────────
+     글자는 fg/on-primary 흰색만 쓴다. 스플래시 배경은 brand primary 팔레트
+     안에서만 움직이고, 콘텐츠 자리에는 스크림을 깔아 흰 글자 명암비가
+     bg/primary 기준 4.98:1 아래로 내려가지 않게 한다.                 */
+  :root{
+    --primary-400:#7484e3;
+    --primary-500:#5566d2;
+    --primary-600:#3b4fc0;
+    --primary-700:#2e3e9e;
+    --neutral-0:#ffffff;
+    --bg-primary:var(--primary-500);
+    --fg-on-primary:var(--neutral-0);
+    --ease:cubic-bezier(.4,0,.2,1);
+
+    /* 직접 시연해보기 링크 색 — bg/primary 위 명암비
+         #c6cad8 neutral/300  3.04 : 1   더 가라앉힌 톤
+         #dee1eb neutral/200  3.81 : 1   ← 현재
+         #f5f6fa neutral/50   4.61 : 1   15px 본문 4.5 통과
+         #ffffff              4.98 : 1   호버 상태
+       호버에서 흰색으로 올라오는 폭을 남기려고 neutral/200에 두었다.        */
+    --enter-fg:#dee1eb;
+
+    /* FLOW2 (Z · 프로토타입 전용 — 신상정보 완료 모션) 실측값
+       Logo Mark 106px 프레임 기준 조각 x좌표를 50.4 뷰박스 단위로 환산
+       진입 -150 → 충돌 +4 → 반동 -1.5 → 정지 0  (÷ 2.10317)          */
+    --fly-in:71.32px;   /* ±150 */
+    --fly-hit:1.902px;  /*  ∓4  */
+    --fly-back:.713px;  /* ±1.5 */
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg-primary); color:var(--fg-on-primary);
+    font-family:"Pretendard Variable",Pretendard,"Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
+    word-break:keep-all; -webkit-font-smoothing:antialiased; overflow:hidden;
+  }
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+  :focus-visible{outline:2px solid rgba(255,255,255,.9);outline-offset:4px;border-radius:4px}
+
+  /* ── 화면은 두 장뿐이다 — 스플래시와 온보딩 ─────────────────────
+     온보딩 안에서 단계가 바뀔 때 이 층은 전혀 움직이지 않는다.        */
+  .step{
+    position:fixed; inset:0; cursor:pointer;
+    touch-action:pan-y;
+    --dir:1;
+    background:var(--bg-primary);       /* 면은 항상 화면을 덮는다 */
+    opacity:0; visibility:hidden; pointer-events:none;
+    transition:opacity .42s var(--ease), visibility .42s var(--ease);
+  }
+  .step.is-active{opacity:1;visibility:visible;pointer-events:auto}
+
+  /* 스플래시 ↔ 온보딩 사이에서만 내용이 미끄러진다. 스텝 자체를 옮기면
+     밀려난 쪽에 맨바닥이 드러나 어두운 띠처럼 보인다.                 */
+  .step > .board,
+  .step > .splash-content{
+    transform:translateX(calc(var(--dir) * 7%));
+    transition:transform .42s var(--ease);
+  }
+  .step.is-active > .board,
+  .step.is-active > .splash-content{transform:translateX(0)}
+
+  /* ── 로고 락업 ────────────────────────────────────────────────── */
+  .lockup{display:flex;align-items:center;gap:calc(var(--sym) * .278)}
+  .lockup .symbol{width:var(--sym);height:var(--sym);flex:0 0 auto;display:block;overflow:visible}
+  .lockup .wordmark{
+    margin:0;font-weight:700;letter-spacing:-.03em;line-height:1.27;
+    font-size:calc(var(--sym) * .611);white-space:nowrap;color:var(--fg-on-primary);
+  }
+
+  /* ── 1 · 스플래시 ─────────────────────────────────────────────── */
+  #splash{
+    display:grid;place-items:center;overflow:hidden;
+    padding:16px 20px calc(24px + env(safe-area-inset-bottom));
+  }
+
+  /* 일렁이는 브랜드 그라데이션 — 크기는 vmax라 어떤 화면에서도 같은 비율 */
+  .bg{position:absolute;inset:0;z-index:0;pointer-events:none}
+  .blob{position:absolute;width:clamp(520px,92vmax,1800px);aspect-ratio:1;will-change:transform}
+  .b1{
+    left:-22%;top:-30%;
+    background:radial-gradient(circle at 50% 50%,rgba(150,166,244,.60) 0%,rgba(116,132,227,.34) 36%,rgba(116,132,227,0) 68%);
+    animation:drift-a 23s var(--ease) infinite;
+  }
+  .b2{
+    right:-26%;bottom:-34%;
+    background:radial-gradient(circle at 50% 50%,rgba(38,52,142,.82) 0%,rgba(46,62,158,.38) 40%,rgba(46,62,158,0) 70%);
+    animation:drift-b 29s var(--ease) infinite;
+  }
+  .b3{
+    left:38%;top:12%;width:clamp(400px,62vmax,1250px);
+    background:radial-gradient(circle at 50% 50%,rgba(59,79,192,.60) 0%,rgba(59,79,192,.26) 42%,rgba(59,79,192,0) 72%);
+    animation:drift-c 19s var(--ease) infinite;
+  }
+  /* 가장 밝은 지점 — 글자에서 먼 위쪽에만 둔다 */
+  .b4{
+    left:4%;top:-18%;width:clamp(300px,50vmax,980px);
+    background:radial-gradient(circle at 50% 50%,rgba(182,196,255,.58) 0%,rgba(150,166,244,.24) 38%,rgba(150,166,244,0) 66%);
+    animation:drift-d 17s var(--ease) infinite;
+  }
+  /* 콘텐츠 자리를 항상 base보다 어둡게 눌러 흰 글자 대비를 지킨다 */
+  .scrim{
+    position:absolute;inset:0;
+    background:radial-gradient(ellipse 72% 58% at 50% 50%,rgba(22,29,84,.38) 0%,rgba(22,29,84,.17) 46%,rgba(22,29,84,0) 76%);
+  }
+  @keyframes drift-a{
+    0%,100%{transform:translate3d(-6%,-4%,0) scale(1)}
+    50%    {transform:translate3d(7%,9%,0) scale(1.18)}
+  }
+  @keyframes drift-b{
+    0%,100%{transform:translate3d(5%,6%,0) scale(1.12)}
+    50%    {transform:translate3d(-8%,-7%,0) scale(1)}
+  }
+  @keyframes drift-c{
+    0%,100%{transform:translate3d(0,0,0) scale(1)}
+    50%    {transform:translate3d(-11%,8%,0) scale(1.26)}
+  }
+  @keyframes drift-d{
+    0%,100%{transform:translate3d(0,0,0) scale(1)}
+    50%    {transform:translate3d(16%,13%,0) scale(1.15)}
+  }
+
+  .splash-content{
+    position:relative;z-index:1;
+    display:flex;flex-direction:column;align-items:center;
+    gap:14px;                               /* 메인 로고 ↔ 소개 문구 */
+    /* 심볼 크기 하나로 락업 전체 비율을 잡는다 — Figma Logo Lockup 규격
+       심볼 : 워드마크 : 간격 = 36 : 22 : 10 (디자인.md 7.2) */
+    --sym:clamp(50.4px,8vw,88px);
+  }
+  .splash-tagline{
+    margin:0;text-align:center;font-weight:400;color:var(--fg-on-primary);
+    font-size:clamp(15px,.53vw + 12.9px,20px);line-height:1.6;max-width:24em;
+  }
+
+  /* ── 심볼 3D 스택 — 같은 도형을 z축으로 9겹 쌓아 두께를 만든다 ──── */
+  .mark3d{
+    position:relative;width:var(--sym);height:var(--sym);flex:0 0 auto;
+    perspective:calc(var(--sym) * 5);perspective-origin:50% 50%;
+    --step:calc(var(--sym) * .019);
+  }
+  .spin{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateY(0deg)}
+  .slab{
+    position:absolute;inset:0;width:100%;height:100%;overflow:visible;
+    transform:translateZ(calc((var(--i) - 4) * var(--step)));
+    color:rgba(255,255,255,.58);            /* 두께(옆면) */
+  }
+  .slab--front{color:#fff}                   /* 앞면 */
+  .slab--back{color:rgba(255,255,255,.82)}   /* 뒷면 */
+
+  /* FLOW2 — 두 조각이 화면 밖에서 날아와 파고들었다가 튕겨 앉는다
+     0.15s 대기 → 0.26s EASE_IN 진입 → 0.06s LINEAR 반동 → 0.12s EASE_OUT 정지 */
+  #splash .piece{transform-box:view-box;transform-origin:center}
+  #splash.is-active .piece{animation-duration:.44s;animation-delay:.15s;animation-fill-mode:both}
+  #splash.is-active .piece--ul{animation-name:fly-ul}
+  #splash.is-active .piece--lr{animation-name:fly-lr}
+
+  @keyframes fly-ul{
+    0%     {transform:translateX(calc(var(--fly-in) * -1));opacity:0;animation-timing-function:cubic-bezier(.42,0,1,1)}
+    59.09% {transform:translateX(var(--fly-hit));opacity:1;animation-timing-function:linear}
+    72.73% {transform:translateX(calc(var(--fly-back) * -1));animation-timing-function:cubic-bezier(0,0,.58,1)}
+    100%   {transform:translateX(0);opacity:1}
+  }
+  @keyframes fly-lr{
+    0%     {transform:translateX(var(--fly-in));opacity:0;animation-timing-function:cubic-bezier(.42,0,1,1)}
+    59.09% {transform:translateX(calc(var(--fly-hit) * -1));opacity:1;animation-timing-function:linear}
+    72.73% {transform:translateX(var(--fly-back));animation-timing-function:cubic-bezier(0,0,.58,1)}
+    100%   {transform:translateX(0);opacity:1}
+  }
+
+  /* 조각이 맞물린 직후(0.59s) 심볼만 수평 360도 한 바퀴 */
+  #splash.is-active .spin{animation:spin-y 1.9s cubic-bezier(.62,0,.32,1) .66s both}
+  @keyframes spin-y{from{transform:rotateY(0deg)}to{transform:rotateY(360deg)}}
+
+  /* 그다음 워드마크 → 소개 문구 순으로 좌에서 우로 */
+  #splash.is-active .wordmark{animation:slide-in .52s var(--ease) .62s both}
+  #splash.is-active .splash-tagline{animation:slide-in .52s var(--ease) .80s both}
+
+  @keyframes slide-in{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
+
+  /* ── 2 · 온보딩 — 단색 한 면, 흰 글자, 테두리·버튼 없음 ─────────── */
+  .board{
+    position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;
+    display:flex;flex-direction:column;
+    padding:clamp(20px,2.4vw,34px) clamp(24px,6vw,56px) calc(clamp(20px,2.4vw,34px) + env(safe-area-inset-bottom));
+  }
+  /* 로고와 도트는 단계가 바뀌어도 제자리에 그대로 있다 */
+  .mark{flex:0 0 auto;--sym:26px;opacity:.92}
+  .mark .lockup .wordmark{font-size:15px}
+  .sheet{flex:1 0 auto;display:flex;flex-direction:column;justify-content:center;width:min(780px,100%);margin:0 auto;padding:clamp(16px,2.4vh,32px) 0}
+
+  /* 진행 도트 = 단계 이동 트리거. 보이는 건 점이지만 터치 영역은 48px이다 */
+  .dots{display:flex;align-items:center;margin:0 0 16px;margin-left:-9px}
+  .dots .dot{
+    appearance:none;-webkit-appearance:none;border:0;background:none;
+    padding:21px 9px;margin:-21px 0;line-height:0;display:block;cursor:pointer;
+  }
+  .dots .dot::before{
+    content:"";display:block;width:6px;height:6px;border-radius:999px;
+    background:rgba(255,255,255,.4);
+    transition:width .42s var(--ease),background-color .42s var(--ease);
+  }
+  .dots .dot.on::before{width:22px;background:var(--fg-on-primary)}
+  .dots .dot:hover::before{background:rgba(255,255,255,.75)}
+  .dots .dot.on:hover::before{background:var(--fg-on-primary)}
+
+  /* ── 바뀌는 건 이 판뿐이다 ──────────────────────────────────────
+     두 판을 같은 그리드 칸에 겹쳐 두면 높이가 큰 쪽으로 고정되어
+     단계를 옮길 때 로고·도트는 물론 세로 위치도 흔들리지 않는다.     */
+  .panes{display:grid}
+  .pane{
+    grid-area:1/1;display:flex;flex-direction:column;
+    --pdir:1;
+    opacity:0;visibility:hidden;pointer-events:none;
+    transform:translateX(calc(var(--pdir) * 6%));
+    transition:opacity .34s var(--ease), transform .38s var(--ease), visibility .38s var(--ease);
+  }
+  .pane.is-on{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(0)}
+
+  .eyebrow{
+    margin:0 0 10px;font-size:13px;line-height:18px;font-weight:600;
+    letter-spacing:.08em;color:var(--fg-on-primary);
+  }
+  h1{
+    margin:0 0 clamp(16px,2vh,24px);font-weight:700;letter-spacing:-.02em;
+    font-size:clamp(24px,1.4vw + 15px,31px);line-height:1.34;color:var(--fg-on-primary);
+  }
+  .paras{margin:0;padding:0;list-style:none;display:grid;gap:clamp(14px,1.8vh,20px)}
+  .para b{
+    display:block;margin:0 0 4px;font-weight:600;letter-spacing:-.01em;
+    font-size:clamp(16px,.3vw + 14px,18px);line-height:1.45;color:var(--fg-on-primary);
+  }
+  .para span{
+    display:block;font-weight:400;
+    font-size:clamp(15px,.25vw + 13px,16px);line-height:1.68;color:var(--fg-on-primary);
+  }
+  .closing{
+    margin:clamp(20px,2.4vh,28px) 0 0;font-size:clamp(15px,.25vw + 13px,16px);
+    line-height:1.68;font-weight:600;color:var(--fg-on-primary);
+  }
+  /* 시연 웹앱으로 가는 유일한 연결점 — 마지막 문단 오른쪽 아래 */
+  .enter{
+    align-self:flex-end;
+    margin:clamp(14px,1.8vh,20px) 0 0;font-size:15px;line-height:1.6;font-weight:600;
+    letter-spacing:-.01em;color:var(--enter-fg);text-decoration:none;cursor:pointer;
+    transition:color .16s ease;
+  }
+  .enter::after{content:" →"}
+  .enter:hover,.enter:focus-visible{color:var(--fg-on-primary)}
+
+  /* 채(로고·도트)는 온보딩에 들어올 때 한 번만 */
+  #ob.is-active .mark{animation:slide-in .62s var(--ease) .06s both}
+  #ob.is-active .dots{animation:slide-in .62s var(--ease) .18s both}
+
+  /* 내용은 판이 바뀔 때마다 좌에서 우로 하나씩. 페이드아웃은 판이 맡으므로
+     자식에 opacity:0 기본값을 두지 않는다 — 그러면 빠져나갈 때 글자가
+     갑자기 사라지지 않고 판과 함께 미끄러져 나간다.                    */
+  .pane.is-on .eyebrow           {animation:slide-in .5s var(--ease) .06s both}
+  .pane.is-on h1                 {animation:slide-in .5s var(--ease) .14s both}
+  .pane.is-on .para:nth-child(1) {animation:slide-in .5s var(--ease) .24s both}
+  .pane.is-on .para:nth-child(2) {animation:slide-in .5s var(--ease) .34s both}
+  .pane.is-on .para:nth-child(3) {animation:slide-in .5s var(--ease) .44s both}
+  .pane.is-on .para:nth-child(4) {animation:slide-in .5s var(--ease) .54s both}
+  .pane.is-on .closing           {animation:slide-in .5s var(--ease) .68s both}
+  .pane.is-on .enter             {animation:slide-in .5s var(--ease) .80s both}
+
+  /* 남은 시간만 알려주는 머리카락 선 — 크롬도 버튼도 아니다 */
+  .tick{position:fixed;left:0;right:0;bottom:0;height:2px;background:rgba(255,255,255,.18);opacity:0;transition:opacity .4s var(--ease);z-index:3}
+  .tick.show{opacity:1}
+  .tick i{display:block;height:100%;width:0;background:rgba(255,255,255,.75)}
+
+  /* 세로가 짧은 웹 창 — 스크롤 없이 한 화면에 들어오게 더 조인다 */
+  @media (min-width:760px) and (max-height:720px){
+    .board{padding-top:16px;padding-bottom:16px}
+    .sheet{padding:8px 0}
+    .dots{margin-bottom:12px}
+    .eyebrow{margin-bottom:8px}
+    h1{font-size:clamp(22px,1.2vw + 14px,27px);margin-bottom:14px}
+    .paras{gap:12px}
+    .para b{font-size:17px;margin-bottom:3px}
+    .para span{font-size:15px;line-height:1.62}
+    .closing{margin-top:14px;font-size:15px;line-height:1.62}
+    .enter{margin-top:10px}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    .step,.step > .board,.step > .splash-content,.pane,.tick,.tick i{transition:none}
+    .step > .board,.step > .splash-content,.pane{transform:none}
+    .blob{animation:none}
+    #splash.is-active .piece,#splash.is-active .spin,#splash.is-active .wordmark,
+    #splash.is-active .splash-tagline,#ob.is-active .mark,#ob.is-active .dots,
+    .pane.is-on .eyebrow,.pane.is-on h1,.pane.is-on .para,
+    .pane.is-on .closing,.pane.is-on .enter{animation:none;opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- 심볼 원본: Figma `Logo Symbol` 벡터 (node 351:1298) — 경로 데이터 그대로, 색만 currentColor -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <path id="mm-ul" d="M21.422 11.0526C22.6277 9.8067 23.9541 9.76651 25.2402 11.0124L27.9732 13.8258C29.2191 15.112 29.4603 16.4785 28.1742 17.7244C27.6517 18.2067 26.888 18.6086 26.0842 19.0909L22.1856 21.5024C21.1005 22.1856 20.6584 22.9895 21.0201 23.9139C21.2211 24.4766 21.7033 24.8383 22.3464 25.3206L24.1148 26.6871C25.401 27.6517 25.4411 28.777 24.1148 29.7416L18.3273 33.1981C17.1617 34.0019 16.1167 33.6804 15.1522 32.7158L12.6603 30.2239C9.88708 27.4909 9.8067 24.356 11.4947 21.5426C12.0976 20.4976 12.8612 19.6134 13.7455 18.7694L21.422 11.0526Z"/>
+    <path id="mm-lr" d="M31.51 18.1263C32.6756 17.2823 33.7206 17.4029 34.8057 18.3273L37.9005 21.422C40.9148 24.4364 40.5531 27.6919 38.2622 30.3043C37.6191 31.0679 36.8153 31.8718 36.0115 32.6756L28.0938 40.4325C26.9282 41.5579 25.7225 41.5981 24.5569 40.5129L22.1053 38.0612C20.9397 36.8957 20.8995 35.69 21.9445 34.645C22.3866 34.1627 23.0297 33.7608 23.7129 33.3187L27.7321 30.5856C28.8574 29.822 29.3397 28.8574 28.8574 27.8928C28.6163 27.29 28.0938 26.8077 27.4909 26.3254L25.6019 24.8785C24.5971 24.0344 24.5971 23.11 25.3608 22.266C25.7627 21.8239 26.2852 21.5024 26.888 21.1005L31.51 18.1263Z"/>
+  </defs>
+  <symbol id="mm-symbol" viewBox="0 0 50.4 50.4">
+    <use href="#mm-ul" fill="currentColor"/><use href="#mm-lr" fill="currentColor"/>
+  </symbol>
+</svg>
+
+<!-- ════════════ 1 · 스플래시 ════════════ -->
+<section class="step is-active" id="splash" role="button" tabindex="0" aria-label="진료메이트 — 계속하려면 누르세요">
+  <div class="bg" aria-hidden="true">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+    <div class="blob b4"></div>
+    <div class="scrim"></div>
+  </div>
+
+  <div class="splash-content">
+    <div class="lockup">
+      <div class="mark3d" aria-hidden="true">
+        <div class="spin">
+          <svg class="slab slab--back" style="--i:0" viewBox="0 0 50.4 50.4"><use class="piece piece--ul" href="#mm-ul" fill="currentColor"/><use class="piece piece--lr" href="#mm-lr" fill="currentColor"/></svg>
+          <svg class="slab" style="--i:1" viewBox="0 0 50.4 50.4"><use class="piece piece--ul" href="#mm-ul" fill="currentColor"/><use class="piece piece--lr" href="#mm-lr" fill="currentColor"/></svg>
+          <svg class="slab" style="--i:2" viewBox="0 0 50.4 50.4"><use class="piece piece--ul" href="#mm-ul" fill="currentColor"/><use class="piece piece--lr" href="#mm-lr" fill="currentColor"/></svg>
+          <svg class="slab" style="--i:3" viewBox="0 0 50.4 50.4"><use class="piece piece--ul" href="#mm-ul" fill="currentColor"/><use class="piece piece--lr" href="#mm-lr" fill="currentColor"/></svg>
+          <svg class="slab" style="--i:4" viewBox="0 0 50.4 50.4"><use class="piece piece--ul" href="#mm-ul" fill="currentColor"/><use class="piece piece--lr" href="#mm-lr" fill="currentColor"/></svg>
+          <svg class="slab" style="--i:5" viewBox="0 0 50.4 50.4"><use class="piece piece--ul" href="#mm-ul" fill="currentColor"/><use class="piece piece--lr" href="#mm-lr" fill="currentColor"/></svg>
+          <svg class="slab" style="--i:6" viewBox="0 0 50.4 50.4"><use class="piece piece--ul" href="#mm-ul" fill="currentColor"/><use class="piece piece--lr" href="#mm-lr" fill="currentColor"/></svg>
+          <svg class="slab" style="--i:7" viewBox="0 0 50.4 50.4"><use class="piece piece--ul" href="#mm-ul" fill="currentColor"/><use class="piece piece--lr" href="#mm-lr" fill="currentColor"/></svg>
+          <svg class="slab slab--front" style="--i:8" viewBox="0 0 50.4 50.4"><use class="piece piece--ul" href="#mm-ul" fill="currentColor"/><use class="piece piece--lr" href="#mm-lr" fill="currentColor"/></svg>
+        </div>
+      </div>
+      <p class="wordmark">진료메이트</p>
+    </div>
+    <p class="splash-tagline">진료실에서 하고 싶은 말, 미리 정리해요</p>
+  </div>
+</section>
+
+<!-- ════════════ 2 · 온보딩 — 화면 하나, 판만 바뀐다 ════════════ -->
+<section class="step" id="ob" aria-label="웹 데모 안내">
+  <div class="board">
+    <div class="mark">
+      <div class="lockup">
+        <svg class="symbol" viewBox="0 0 50.4 50.4" aria-hidden="true"><use href="#mm-symbol"/></svg>
+        <p class="wordmark">진료메이트</p>
+      </div>
+    </div>
+
+    <div class="sheet">
+      <div class="dots" role="group" aria-label="온보딩 단계">
+        <button type="button" class="dot on" data-pane="p1" aria-label="1단계" aria-current="step"></button>
+        <button type="button" class="dot"    data-pane="p2" aria-label="2단계"></button>
+      </div>
+
+      <div class="panes">
+        <!-- ── 1단계 · 구동 방식 ── -->
+        <div class="pane is-on" id="p1">
+          <p class="eyebrow">웹 데모 안내 · 1</p>
+          <h1>설치 없이, 브라우저에서 바로 돌아갑니다</h1>
+          <ul class="paras">
+            <li class="para">
+              <b>링크만 열면 시작</b>
+              <span>설치도 가입도 없습니다. 데스크톱과 모바일 브라우저 모두에서 열리고, 화면은 실제 앱과 같은 모바일 비율로 표시됩니다.</span>
+            </li>
+            <li class="para">
+              <b>화면 안내를 따라가세요</b>
+              <span>화면 옆, 좁은 화면에서는 아래의 목록에 화면마다 무엇을 하는 곳인지 적어 두었습니다. 줄을 누르면 그 화면으로 바로 이동합니다.</span>
+            </li>
+            <li class="para">
+              <b>입력한 내용은 이 브라우저에만</b>
+              <span>브리핑 카드와 진료 기록은 브라우저 로컬스토리지에 저장됩니다. 새로고침해도 이어지고, 다른 기기로는 넘어가지 않습니다.</span>
+            </li>
+            <li class="para">
+              <b>처음부터 다시 보려면</b>
+              <span>시크릿 창으로 열거나 이 사이트의 저장 데이터를 지우면 초기 상태로 돌아갑니다. 몇 번이든 반복해서 보실 수 있습니다.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- ── 2단계 · APK 기획과 다른 점 ── -->
+        <div class="pane" id="p2">
+          <p class="eyebrow">웹 데모 안내 · 2</p>
+          <h1>앱에서 웹앱으로 옮기며 뺀 네 가지</h1>
+          <ul class="paras">
+            <li class="para">
+              <b>음성 입력(STT) 제외</b>
+              <span>앱에서는 AI 증상 문답과 진료 후 메모를 말로 입력합니다. 웹 데모에서는 같은 자리에서 키보드로 적습니다. 질문 순서와 카드에 실리는 내용은 같습니다.</span>
+            </li>
+            <li class="para">
+              <b>카카오 로그인 제외</b>
+              <span>앱에서는 카카오 계정으로 시작하고 기록이 계정에 묶입니다. 웹 데모의 로그인 화면은 흐름 확인용이라, 누르면 계정 연결 없이 다음으로 넘어갑니다.</span>
+            </li>
+            <li class="para">
+              <b>기기 설정 제어 불가</b>
+              <span>앱은 진료실에서 폰을 건넬 때 화면 밝기를 최대로 올립니다. 브라우저는 기기 설정을 바꿀 수 없어, 카드를 보여줄 때 밝기는 직접 올려 주세요.</span>
+            </li>
+            <li class="para">
+              <b>서버 연동 없이 로컬 저장</b>
+              <span>앱은 서버에 저장하고 기기 사이를 동기화합니다. 웹 데모는 이 브라우저의 로컬스토리지에만 저장합니다.</span>
+            </li>
+          </ul>
+          <p class="closing">AI가 진단하지 않는다는 것, 환자가 확인하고 고치는 브리핑 카드, 모든 질문의 &ldquo;잘 모르겠어요 · 없어요&rdquo; 경로는 그대로입니다.</p>
+          <!-- 시연 웹앱으로 가는 연결점. 주소는 스크립트의 DEMO_URL 한 줄 -->
+          <a class="enter" id="enter" href="#">직접 시연해보기</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="tick" aria-hidden="true"><i></i></div>
+<p class="sr-only" id="live" role="status" aria-live="polite"></p>
+
+<script>
+/* ══════════════════════════════════════════════════════════════════
+   시연 웹앱 주소 — 이 온보딩과 시연 코드를 한 웹앱으로 배포할 때
+   시연 빌드가 놓이는 경로. 아래 한 줄만 바꾸면 됩니다.
+     같은 도메인 하위 경로   "./app/"   "/demo/"
+     다른 주소             "https://…"
+   (?demo=https://... 쿼리스트링으로 임시 덮어쓰기도 됩니다)
+   ══════════════════════════════════════════════════════════════════ */
+const DEMO_URL = "./app/";
+
+/* 화면 순서 — 스플래시 한 장, 온보딩 한 장 안에 판 두 개.
+   step이 같으면 로고·도트는 움직이지 않고 판만 바뀐다. */
+const SCREENS = [
+  { step: "splash",                 dwell: 3900,  label: "진료메이트" },
+  { step: "ob", pane: "p1", dot: 0, dwell: 13000, label: "웹 데모 안내 1／2" },
+  { step: "ob", pane: "p2", dot: 1, dwell: 16000, label: "웹 데모 안내 2／2" }
+];
+
+const steps  = { splash: document.getElementById("splash"), ob: document.getElementById("ob") };
+const panes  = [...document.querySelectorAll(".pane")];
+const dots   = [...document.querySelectorAll(".dots .dot")];
+const tick   = document.querySelector(".tick");
+const tickIn = tick.firstElementChild;
+const live   = document.getElementById("live");
+const target = new URLSearchParams(location.search).get("demo") || DEMO_URL;
+
+document.getElementById("enter").href = target || "#";
+
+let idx = 0;
+let timer = null;
+let autoplay = true;
+
+function startTick(ms){
+  tickIn.style.transition = "none";
+  tickIn.style.width = "0%";
+  tick.classList.add("show");
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    tickIn.style.transition = "width " + ms + "ms linear";
+    tickIn.style.width = "100%";
+  }));
+}
+
+function stopAutoplay(){
+  autoplay = false;
+  clearTimeout(timer);
+  tick.classList.remove("show");
+}
+
+/* 한 층을 시작 위치에 붙였다가 미끄러뜨린다 — 겉면과 안쪽 요소의
+   transition을 함께 꺼야 반대 방향에서 들어오지 않는다. */
+function placeThenSlide(el, inner, prop, value){
+  if (inner) inner.style.transition = "none";
+  el.style.transition = "none";
+  el.style.setProperty(prop, value);
+  void el.offsetWidth;
+  if (inner) inner.style.transition = "";
+  el.style.transition = "";
+}
+
+/* dir = 1 다음으로(왼쪽으로 밀림) · -1 이전으로(오른쪽으로 밀림) */
+function goTo(n, dir){
+  if (n < 0 || n >= SCREENS.length || n === idx) return;
+  clearTimeout(timer);
+  dir = dir === -1 ? -1 : 1;
+
+  const from = SCREENS[idx], to = SCREENS[n];
+  const stepChanged = from.step !== to.step;
+
+  /* 스플래시 ↔ 온보딩일 때만 화면 층이 움직인다 */
+  if (stepChanged){
+    const outEl = steps[from.step], inEl = steps[to.step];
+    outEl.style.setProperty("--dir", dir === 1 ? -1 : 1);
+    outEl.classList.remove("is-active");
+    placeThenSlide(inEl, inEl.querySelector(".board, .splash-content"), "--dir", dir === 1 ? 1 : -1);
+    inEl.classList.add("is-active");
+    const board = inEl.querySelector(".board");
+    if (board) board.scrollTop = 0;
+  }
+
+  /* 온보딩 안에서는 판만 교체된다 — 로고·도트는 제자리 */
+  if (to.pane){
+    const inPane = document.getElementById(to.pane);
+    if (!inPane.classList.contains("is-on")){
+      panes.forEach(p => {
+        if (p === inPane || !p.classList.contains("is-on")) return;
+        p.style.setProperty("--pdir", dir === 1 ? -1 : 1);
+        p.classList.remove("is-on");
+      });
+      /* 화면 층이 이미 미끄러지는 중이면 판은 제자리에서 켠다 */
+      placeThenSlide(inPane, null, "--pdir", stepChanged ? 0 : (dir === 1 ? 1 : -1));
+      inPane.classList.add("is-on");
+    }
+  }
+
+  dots.forEach((d, i) => {
+    const on = i === to.dot;
+    d.classList.toggle("on", on);
+    if (on) d.setAttribute("aria-current", "step");
+    else d.removeAttribute("aria-current");
+  });
+
+  idx = n;
+  live.textContent = to.label || "";
+
+  if (autoplay && n < SCREENS.length - 1){
+    startTick(to.dwell);
+    timer = setTimeout(() => goTo(n + 1, 1), to.dwell);
+  } else {
+    tick.classList.remove("show");
+  }
+}
+
+const advance = () => goTo(idx + 1, 1);
+const back    = () => goTo(idx - 1, -1);
+
+/* ── 좌우 스와이프 · 드래그 · 탭 ────────────────────────────────
+   버튼은 두지 않는다. 왼쪽으로 밀면 다음, 오른쪽으로 밀면 이전,
+   짧게 누르면 다음. 세로 움직임이 더 크면 스크롤로 넘긴다.        */
+const SWIPE = 48, TAP = 10;
+let px = 0, py = 0, pt = 0, pid = null;
+
+document.querySelectorAll(".step").forEach(el => {
+  el.addEventListener("pointerdown", e => {
+    if (e.button && e.button !== 0) return;
+    pid = e.pointerId; px = e.clientX; py = e.clientY; pt = Date.now();
+  });
+  el.addEventListener("pointerup", e => {
+    if (pid !== e.pointerId) return;
+    pid = null;
+    if (e.target.closest && e.target.closest("a,button")) return;  /* 링크·도트는 그쪽대로 */
+
+    const dx = e.clientX - px, dy = e.clientY - py, dt = Date.now() - pt;
+    stopAutoplay();
+
+    if (Math.abs(dx) >= SWIPE && Math.abs(dx) > Math.abs(dy)){
+      if (dx < 0) advance(); else back();
+    } else if (Math.abs(dx) < TAP && Math.abs(dy) < TAP && dt < 600){
+      advance();
+    }
+  });
+  el.addEventListener("pointercancel", () => { pid = null; });
+});
+
+document.addEventListener("keydown", e => {
+  if (e.target.closest && e.target.closest("a,button") && (e.key === "Enter" || e.key === " ")) return;
+  if (e.key === "ArrowLeft")  { stopAutoplay(); back(); return; }
+  if (e.key === "ArrowRight" || e.key === "Enter" || e.key === " "){
+    e.preventDefault(); stopAutoplay(); advance();
+  }
+});
+
+/* 진행 도트를 누르면 그 단계로 미끄러진다 */
+dots.forEach(dot => {
+  dot.addEventListener("click", e => {
+    e.stopPropagation();
+    stopAutoplay();
+    const n = SCREENS.findIndex(s => s.pane === dot.dataset.pane);
+    if (n >= 0) goTo(n, n > idx ? 1 : -1);
+  });
+});
+
+/* 첫 화면은 이미 활성 상태다 — 타이머만 건다 */
+live.textContent = SCREENS[0].label;
+startTick(SCREENS[0].dwell);
+timer = setTimeout(() => goTo(1, 1), SCREENS[0].dwell);
+</script>
+</body>
 </html>

@@ -168,6 +168,7 @@ export function IntakeBodyMapScreen() {
       return (
         <ListRow
           key={`${a.id}:${p.side}`}
+          plain
           title={zoneLabel(a, p.side)}
           sub={mine && label ? fmt(S.body_map_list_picked, label) : undefined}
           /* 검색을 함께 닫는다. 검색어가 남아 있으면 화면이 계속 결과를 그려서

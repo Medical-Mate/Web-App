@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
+    <meta name="theme-color" content="#5566D2" />
+    <!-- 탭 아이콘. 브라우저마다 읽는 것이 달라 셋을 다 둔다 — 사파리는 SVG 파비콘을 쓰지 않고,
+         `/favicon.ico` 는 링크가 없어도 브라우저가 알아서 찾는 자리다. -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/svg+xml" href="/icons/ic_logo_symbol.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/favicon-192.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <title>진료메이트 — 진료실에서 하고 싶은 말, 미리 정리해요</title>
+    <meta
+      name="description"
+      content="아픈 곳을 짚고 AI와 대화하면 진료 전에 보여줄 브리핑 카드로 정리됩니다. 진료 후에 들은 말도 소견·검사·약·재방문으로 나눠 기록해요."
+    />
+
+    <!-- 링크를 주고받을 때 뜨는 미리보기. 이미지는 public/og.png 다. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:site_name" content="진료메이트" />
+    <meta property="og:title" content="진료메이트 — 진료실에서 하고 싶은 말, 미리 정리해요" />
+    <meta
+      property="og:description"
+      content="아픈 곳을 짚고 AI와 대화하면 진료 전에 보여줄 브리핑 카드로 정리됩니다."
+    />
+    <meta property="og:url" content="https://medicalmate-web.vercel.app/" />
+    <meta property="og:image" content="https://medicalmate-web.vercel.app/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
