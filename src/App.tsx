@@ -3,7 +3,7 @@ import { Navigate, Route, Routes, useLocation, useNavigationType } from 'react-r
 import type { Location } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
 import { StoreProvider, useStore } from './store/store'
-import { analyticsPath, analyticsRoute, stripHash } from './lib/analytics'
+import { analyticsPath, analyticsRoute, capturePageview, stripHash } from './lib/analytics'
 import { trackLocation } from './lib/flow'
 import { Toast } from './components/ui'
 import { PhoneStage, PunchHole, StatusBar } from './components/PhoneFrame'
@@ -142,6 +142,13 @@ function Router() {
   useEffect(() => {
     trackLocation(location.pathname)
   }, [location])
+
+  /* 화면 하나가 열렸다고 알린다. 이 한 줄이 흐름의 뼈대다 — 진입 → 로그인 → 온보딩 → 홈 →
+     부위 → 문답 → 카드 로 줄어드는 수가 곧 이탈 구간이다. `location.key` 로 세면 같은 화면을
+     다시 열었을 때도 센다(카드를 고치고 돌아오는 경우). */
+  useEffect(() => {
+    capturePageview(analyticsPath(location.pathname), analyticsRoute(location.pathname))
+  }, [location.key, location.pathname])
 
   /* 나가는 화면은 전환이 끝나면 지운다. 남겨 두면 화면이 쌓인다. */
   useEffect(() => {

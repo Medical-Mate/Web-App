@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HashRouter } from 'react-router-dom'
 import App from './App'
+import { startPostHog } from './lib/analytics'
 import { demoState } from './data/demoSeed'
 import './styles/tokens.css'
 import './styles/global.css'
@@ -26,6 +27,9 @@ import './styles/components.css'
     history.replaceState(null, '', `${location.pathname}${location.search}#/`)
   }
 }
+
+/* 계측을 먼저 켠다. 화면이 그려지기 전에 켜 두면 첫 화면의 페이지뷰도 빠지지 않는다. */
+startPostHog()
 
 /* HashRouter 를 쓰는 이유: 정적 호스팅(GitHub Pages·Netlify drop·로컬 file 열기)에서
  * 서버 리라이트 없이도 새로고침과 직접 링크가 동작한다. 해커톤 제출에 유리하다. */

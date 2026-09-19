@@ -16,6 +16,8 @@
  * (문답 `thinking` · 메모 `busy`)은 그대로 두고, 그것을 뚫고 오는 것을 여기서 받는다.
  */
 
+import { capture } from '../lib/analytics'
+
 /**
  * 백엔드 주소.
  *
@@ -99,6 +101,16 @@ export async function apiFetch<T>(path: string, init: { method?: string; body?: 
   }
 }
 
+/**
+ * 계측에 쓸 경로 이름. **물음표 뒤를 버린다.**
+ *
+ * 병원 검색은 `?q=…` 에 사람이 친 글자가 들어간다. 그걸 그대로 보내면 검색어가 밖으로 나간다.
+ * 어느 갈래가 얼마나 느렸는지 보는 데는 경로만 있으면 된다.
+ */
+function endpointName(path: string): string {
+  return path.split('?')[0]
+}
+
 /** 답을 기다리는 요청. 키는 메서드 · 경로 · 본문. */
 const inflight = new Map<string, Promise<unknown>>()
 
@@ -132,6 +144,13 @@ async function throttle(path: string): Promise<void> {
 
 async function send<T>(path: string, method: string, init: { body?: unknown; signal?: AbortSignal }): Promise<T> {
   if (!apiAvailable()) throw new ApiError(0, 'backend unavailable')
+  /* 걸린 시간을 여기서 잰다. 모든 백엔드 호출이 이 함수를 지나가므로 AI 문답 · 추천 질문 ·
+     메모 분류 · 병원 검색이 한 곳에서 다 잡힌다. 부르는 쪽마다 심을 필요가 없다.
+     **내용은 담지 않는다** — 경로 · 상태 · 걸린 ms 뿐이고, 증상이나 검색어는 보내지 않는다. */
+  const endpoint = endpointName(path)
+  const startedAt = Date.now()
+  const done = (status: number, outcome: 'ok' | 'error' | 'aborted') =>
+    capture('api_request', { endpoint, method, status, outcome, duration_ms: Date.now() - startedAt })
   const headers: Record<string, string> = { Accept: 'application/json' }
   if (init.body !== undefined) headers['Content-Type'] = 'application/json'
   if (ACCESS_TOKEN) headers.Authorization = `Bearer ${ACCESS_TOKEN}`
@@ -144,7 +163,13 @@ async function send<T>(path: string, method: string, init: { body?: unknown; sig
       signal: init.signal,
     })
   } catch (e) {
-    if (init.signal?.aborted) throw e
+    if (init.signal?.aborted) {
+      /* 취소는 실패가 아니다. 병원 검색은 글자를 더 치면 앞 요청을 버린다. 섞으면 실패율이
+         부풀어서 서버가 불안정한 것처럼 보인다. */
+      done(0, 'aborted')
+      throw e
+    }
+    done(0, 'error')
     downUntil = Date.now() + RETRY_MS
     throw new ApiError(0, 'network')
   }
@@ -159,14 +184,21 @@ async function send<T>(path: string, method: string, init: { body?: unknown; sig
       const retryAfter = Number(res.headers.get('Retry-After'))
       downUntil = Date.now() + (Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter * 1000 : RATE_LIMIT_PAUSE_MS)
     }
+    done(res.status, 'error')
     throw new ApiError(res.status, `${path} ${res.status}`)
   }
-  if (res.status === 204) return undefined as T
+  if (res.status === 204) {
+    done(res.status, 'ok')
+    return undefined as T
+  }
   try {
-    return (await res.json()) as T
+    const body = (await res.json()) as T
+    done(res.status, 'ok')
+    return body
   } catch {
     /* JSON 이 아니면 `/api` 를 넘겨 주는 것이 없다는 뜻이다 — 정적 호스트가 자기 페이지를
        돌려준 것이다. 글자마다 같은 답을 받지 않도록 쉰다. */
+    done(res.status, 'error')
     downUntil = Date.now() + RETRY_MS
     throw new ApiError(0, `${path} not json`)
   }
