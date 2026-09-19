@@ -10,7 +10,7 @@
  * 좌우까지 펼치면 44줄이라 그 안에서 찾는 것이 그림에서 짚는 것보다 어려웠다. 부위를 이름으로
  * 고르는 화면은 이 흐름의 다음 장(증상 문답)이 말로 받는다.
  */
-import { Suspense, lazy, useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Pad, Screen } from '../components/Screen'
@@ -26,6 +26,7 @@ import {
 } from '../data/bodyMap'
 import type { BodyAnchor, BodySide, BodyView, BodyZone } from '../data/bodyMap'
 import { frameOf } from '../data/bodyMap3d'
+import { capture } from '../lib/analytics'
 import { useStore } from '../store/store'
 import { supportsWebGl } from '../lib/webgl'
 import './bodymap.css'
@@ -93,6 +94,16 @@ export function IntakeBodyMapScreen() {
 
   const goNext = () => {
     if (!picked || !label) return
+    /* **대부위까지만 보낸다.** 세부부위(`zoneId`)는 "이 사람은 명치가 아프다"에 가까워서
+       밖으로 내보내지 않는다 — 증상 원문을 안 보내기로 한 것과 같은 선이다. 어느 구역을
+       많이 고르는지는 아홉 개 대부위만으로 충분히 보이고, AI 추출 품질은 카드에서 어느
+       항목을 고치는지(`card_item_edited`)로 따로 본다. */
+    capture('bodypart_picked', {
+      anchor_id: picked.anchor.id,
+      side: picked.side,
+      method: pickMethod.current,
+      has_zone: picked.zone !== null,
+    })
     updateIntake({
       step: 2,
       bodyPart: {
@@ -106,8 +117,12 @@ export function IntakeBodyMapScreen() {
     navigate('/intake/chat')
   }
 
+  /** 부위를 어떻게 골랐는지. 짚은 점이 있으면 판에서, 없으면 칩에서 온 것이다. */
+  const pickMethod = useRef<'map3d' | 'image' | 'chip'>('chip')
+
   /** 전신·피부처럼 세부 구역이 없는 앵커는 한 번에 확정된다. */
   const pickAnchor = (a: BodyAnchor, side: BodySide, point?: { x: number; y: number }) => {
+    pickMethod.current = point ? mode : 'chip'
     if (!a.zones.length) {
       setPicked({ anchor: a, zone: null, side: 'CENTER' })
       setAnchor(null)

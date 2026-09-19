@@ -12,6 +12,7 @@ import { Pad, Screen } from '../components/Screen'
 import { Badge, Button, Card, EmptyState, ListRow, Logo, SectionHeader } from '../components/ui'
 import { S, fmt } from '../data/strings'
 import { markFlowStart } from '../lib/flow'
+import { capture, markIntakeStart } from '../lib/analytics'
 import { useStore } from '../store/store'
 import type { Appointment, AppState } from '../lib/types'
 import { INTAKE_STEPS } from '../lib/types'
@@ -210,6 +211,10 @@ export function HomeScreen() {
     startIntake()
     /* 흐름에 들어간다. 카드를 저장하면 여기까지 걷어낸다. */
     markFlowStart()
+    /* 이 흐름의 첫 걸음. `resumed` 는 이어서 하기로 들어왔는지다 — 처음 시작한 사람과
+       중간에 돌아온 사람은 이탈하는 자리가 다르다. */
+    markIntakeStart()
+    capture('intake_started', { resumed: Boolean(state.intake) })
     navigate('/intake')
   }
 

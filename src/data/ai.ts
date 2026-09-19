@@ -18,7 +18,8 @@
  * 대본 문구는 시연 큐카드(docs/DEMO-SCENARIO-30steps.md)의 7턴을 그대로 쓴다.
  */
 import type { AiCard, BriefCard, CardItem, HealthProfile, IntakeSession, Severity, UserProfile } from '../lib/types'
-import { apiAvailable, apiFetch } from './api'
+import { ApiError, apiAvailable, apiFetch } from './api'
+import { capture } from '../lib/analytics'
 import {
   AXIS_FINDINGS,
   AXIS_FOLLOW_UP,
@@ -124,6 +125,11 @@ function toAiCard(card: PrevisitTurn['card']): AiCard | null {
  */
 export async function askNext(session: IntakeSession, health?: HealthProfile): Promise<NextQuestion> {
   const answered = session.turns.filter((t) => t.role === 'user')
+  /* 몇 번째 턴인지. 이 값으로 "몇 턴에서 지치는지"와 "느린 턴에서 더 떠나는지"를 가른다. */
+  const turnIndex = answered.length
+  const askedAt = Date.now()
+  const replied = (source: 'server' | 'script') =>
+    capture('intake_ai_replied', { turn_index: turnIndex, duration_ms: Date.now() - askedAt, source })
   const scripted = session.ai === null
   if (apiAvailable() && !scripted) {
     try {
@@ -133,6 +139,7 @@ export async function askNext(session: IntakeSession, health?: HealthProfile): P
         const res = await apiFetch<PrevisitStart>('/api/demo/previsit/sessions', {
           body: siteNodeId ? { site_node_id: siteNodeId, ...(side ? { side } : {}) } : {},
         })
+        replied('server')
         return { text: res.reply, closing: false, patch: { ai: { state: res.state, card: null } } }
       }
       if (session.ai) {
@@ -152,21 +159,31 @@ export async function askNext(session: IntakeSession, health?: HealthProfile): P
               : {}),
           },
         })
+        replied('server')
         return {
           text: res.reply,
           closing: res.ended,
           patch: { ai: { state: res.state, card: res.ended ? toAiCard(res.card) : null } },
         }
       }
-    } catch {
-      /* 아래 대본으로. 서버로 시작한 문답이면 여기서 대본으로 넘어간다. */
+    } catch (e) {
+      /* 아래 대본으로. 서버로 시작한 문답이면 여기서 대본으로 넘어간다.
+         **이 자리를 세는 것이 1상의 이유 중 하나다.** 화면은 조용히 대본으로 넘어가서
+         사용자도 우리도 AI 가 멎은 줄 모른다. 이 수가 올라가면 그때 알 수 있다. */
+      capture('intake_ai_failed', {
+        turn_index: turnIndex,
+        status: e instanceof ApiError ? e.status : 0,
+        reason: e instanceof ApiError ? e.message : 'unknown',
+      })
     }
   }
   const fallback: Partial<IntakeSession> = session.ai === undefined || session.ai ? { ai: null } : {}
   if (answered.length >= SCRIPT.length) {
+    replied('script')
     return delay({ text: INTAKE_CLOSING, closing: true, patch: fallback }, THINK_MS)
   }
   const part = session.bodyPart?.label ?? '아픈 곳'
+  replied('script')
   return delay(
     { text: SCRIPT[answered.length].replace('%s', withSubjectParticle(part)), closing: false, patch: fallback },
     THINK_MS,

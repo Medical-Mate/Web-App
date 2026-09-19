@@ -1,5 +1,5 @@
 /** 1e 브리핑 카드 · 1j-4 카드 목록 */
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Pad, Screen } from '../components/Screen'
 import {
@@ -20,6 +20,7 @@ import {
 } from '../components/ui'
 import { S, fmt } from '../data/strings'
 import { buildCard, patientLine } from '../data/ai'
+import { capture } from '../lib/analytics'
 import { markFlowStart, popPast, popTo, resetTo } from '../lib/flow'
 import { useStore } from '../store/store'
 import { MAX_BRIEF_CARD_QUESTIONS, SEVERITY_LABELS, SEVERITY_NRS, cardRowStatus } from '../lib/types'
@@ -224,6 +225,23 @@ export function BriefCardScreen() {
   }, [id, isNew, state.cards, state.intake, state.health, hospitalFromNav])
   const card = built && isNew && override ? { ...built, ...override } : built
 
+  /* 조립이 끝난 카드의 모양. `source` 가 `local` 로 기울면 AI 가 항목을 못 채우고 있다는
+     뜻이다 — 화면은 그래도 카드를 그려서 티가 안 난다.
+     **이펙트에 둔다.** 조립은 `useMemo` 인데 그 안에서 보내면 두 가지가 어긋난다. 개발
+     모드의 StrictMode 가 두 번 부르고, 저장해서 `state.cards` 가 바뀌면 다시 조립되어 또
+     보낸다. 한 카드는 한 번만 세어야 `card_saved` 와의 낙차가 이탈률이 된다. */
+  const builtSent = useRef(false)
+  useEffect(() => {
+    if (!isNew || !built || builtSent.current) return
+    builtSent.current = true
+    capture('card_built', {
+      item_count: built.items.length,
+      question_count: built.questions.length,
+      source: state.intake?.ai?.card ? 'server' : 'local',
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isNew, built])
+
   /* 병원 찾기에서 고르고 돌아온 것을 **저장된 카드에 쓴다.**
    *
    * 새 카드는 조립이 이 값을 받아 가지만(`buildCard`), 저장된 카드는 스토어에서 그대로
@@ -277,10 +295,17 @@ export function BriefCardScreen() {
   const edit: CardEdit | undefined = draft
     ? {
         draft,
-        onItemChange: (i, v) =>
-          update((d) => ({ ...d, items: d.items.map((it, at) => (at === i ? { ...it, value: v } : it)) })),
+        onItemChange: (i, v) => {
+          /* **항목의 이름만 보낸다.** 어느 칸이 자주 고쳐지는지가 AI 추출이 약한 자리이고,
+             고친 내용은 증상 그 자체라 보내지 않는다. */
+          capture('card_item_edited', { field: draft.items[i]?.key ?? '?', action: 'edit' })
+          update((d) => ({ ...d, items: d.items.map((it, at) => (at === i ? { ...it, value: v } : it)) }))
+        },
         /* 항목 줄의 ×. 확인을 붙이지 않는다 — 개체가 아니라 안의 항목이고 취소가 되돌린다. */
-        onItemDelete: (i) => update((d) => ({ ...d, items: d.items.filter((_, at) => at !== i) })),
+        onItemDelete: (i) => {
+          capture('card_item_edited', { field: draft.items[i]?.key ?? '?', action: 'delete' })
+          update((d) => ({ ...d, items: d.items.filter((_, at) => at !== i) }))
+        },
         onQuestionChange: (i, v) =>
           update((d) => ({ ...d, questions: d.questions.map((q, at) => (at === i ? v : q)) })),
         onQuestionDelete: (i) => update((d) => ({ ...d, questions: d.questions.filter((_, at) => at !== i) })),
@@ -293,6 +318,13 @@ export function BriefCardScreen() {
   const save = () => {
     /* 빈 질문은 담지 않는다. 더해 놓고 안 적은 줄이다. */
     const questions = card.questions.filter((q) => q.trim())
+    /* 이 흐름의 마지막 걸음. `card_built` 과의 낙차가 카드를 보고 달아난 비율이다. */
+    capture('card_saved', {
+      item_count: card.items.length,
+      question_count: questions.length,
+      was_edited: override !== null,
+      has_hospital: card.hospital !== null,
+    })
     /* 저장하기는 카드를 **확정**한다(원본 `repository.confirm`). 새 카드는 목록에 더하고,
        이미 저장된 카드는 그 자리에서 상태만 바꾼다 — 다시 더하면 같은 카드가 두 장 된다. */
     if (isNew) addCard({ ...card, status: 'CONFIRMED', questions })

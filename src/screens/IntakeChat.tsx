@@ -11,6 +11,7 @@ import { Pad, Screen } from '../components/Screen'
 import { BottomCta, Button, Chip, Icon, Notice, SectionHeader, SeveritySlider, StepProgress } from '../components/ui'
 import { S, fmt } from '../data/strings'
 import { askNext, suggestQuestions } from '../data/ai'
+import { capture, intakeElapsed } from '../lib/analytics'
 import { useStore } from '../store/store'
 import { MAX_BRIEF_CARD_QUESTIONS, SEVERITY_DESCRIPTIONS, SEVERITY_LABELS } from '../lib/types'
 import { withSubjectParticle } from '../lib/korean'
@@ -88,20 +89,42 @@ function ChatStep() {
     /* 앱의 `canSend` 는 답을 기다리는 중인지만 본다. 문답이 끝났어도 더 말할 수 있다. */
     if (!text || thinking) return
     const turns = [...session.turns, { role: 'user' as const, text }]
+    /* **글자 수만 보낸다.** 답이 짧아지는 것이 지치는 신호라 길이는 필요하고, 내용은
+       필요 없다. 몇 턴까지 길게 쓰다 어디서 한 줄로 줄어드는지가 문답 길이를 정하는 근거다. */
+    capture('intake_turn_answered', {
+      turn_index: turns.filter((t) => t.role === 'user').length - 1,
+      answer_len: text.length,
+    })
     updateIntake({ turns })
     setDraft('')
     setThinking(true)
     askNext({ ...session, turns }, state.health).then((q) => {
       setThinking(false)
       updateIntake({ turns: [...turns, { role: 'ai' as const, text: q.text }], ...(q.patch ?? {}) })
-      if (q.closing) setClosed(true)
+      if (q.closing) {
+        /* **한 번만 센다.** 문답이 끝난 뒤에도 더 말할 수 있어서(`canSend` 는 답을 기다리는
+           중인지만 본다) 그 뒤 턴마다 `closing` 이 다시 온다. 이미 끝난 것으로 세었으면
+           넘어간다 — 완료 수가 부풀면 이탈률이 실제보다 좋아 보인다. */
+        if (!closed) {
+          const ms = intakeElapsed()
+          capture('intake_completed', {
+            turn_count: turns.filter((t) => t.role === 'user').length,
+            ...(ms === null ? {} : { total_ms: ms }),
+          })
+        }
+        setClosed(true)
+      }
     })
   }
 
   return (
     <Screen
       title={S.intake_title}
-      onBack={() => navigate(-1)}
+      /* 되돌아간 자리를 센다. 어느 턴이 한 번에 안 읽히는지가 여기 남는다. */
+      onBack={() => {
+        capture('intake_back', { turn_index: session.turns.filter((t) => t.role === 'user').length })
+        navigate(-1)
+      }}
       surface
       scrollRef={logRef}
       bottom={
@@ -200,7 +223,14 @@ function SeverityStep() {
       surface
       bottom={
         <BottomCta>
-          <Button onClick={() => updateIntake({ severity: level, step: 4 })}>{S.intake_next}</Button>
+          <Button
+            onClick={() => {
+              capture('severity_set', { value: level })
+              updateIntake({ severity: level, step: 4 })
+            }}
+          >
+            {S.intake_next}
+          </Button>
         </BottomCta>
       }
     >

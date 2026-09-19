@@ -170,3 +170,20 @@ export function capture(event: string, props?: Record<string, string | number | 
   if (!started) return
   posthog.capture(event, props)
 }
+
+/**
+ * 증상 정리를 시작한 시각. `intake_completed` 가 총 소요를 셈하는 데 쓴다.
+ *
+ * 모듈에 둔다 — 화면이 여럿을 지나가고 새로고침이면 사라지는 편이 맞다. 없으면 총 소요를
+ * 빼고 보낸다. 한 세션에 두 번 시작하면 뒤엣것이 이긴다.
+ */
+let intakeStartedAt: number | null = null
+
+export function markIntakeStart(): void {
+  intakeStartedAt = Date.now()
+}
+
+/** 시작 시각을 알면 지금까지 걸린 ms, 모르면 null. */
+export function intakeElapsed(): number | null {
+  return intakeStartedAt === null ? null : Date.now() - intakeStartedAt
+}
