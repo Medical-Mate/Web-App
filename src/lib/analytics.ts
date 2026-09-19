@@ -111,6 +111,38 @@ export function startPostHog(): void {
 }
 
 /**
+ * 다음 화면 이동이 **안내 대본에서 건너뛴 것**인지.
+ *
+ * 옆의 시연 대본은 서른 줄 어디로든 곧장 보낸다 — 로그인을 대신 해 주고 문답 상태까지 얹는다.
+ * 그 이동을 사람이 밟은 것과 같이 세면 퍼널이 거짓말을 한다. 부위 선택과 문답을 건너뛴 채
+ * 카드 화면에 선 사람이 "카드까지 도달한 사람"으로 잡힌다.
+ *
+ * 대본이 `navigate` 직전에 세우고, 페이지뷰가 한 번 읽고 지운다.
+ */
+let jumped = false
+
+/** 안내 대본이 다음 이동 직전에 부른다. */
+export function markGuidedJump(): void {
+  jumped = true
+  if (started) posthog.register_for_session({ guided_session: true })
+}
+
+/**
+ * 이 세션이 **시연용**임을 표시한다. 주소에 `?demo=1` · `?nosplash=1` 이 붙은 방문이다.
+ *
+ * 시연 데이터를 심고 스플래시를 건너뛴 채 들어온 것이라, 처음 쓰는 사람의 흐름이 아니다.
+ * 세션 단위로 붙여서 퍼널에서 통째로 걸러낸다 — 대본을 한 번이라도 누른 사람은 그 뒤의
+ * 이동도 이미 답을 알고 움직이는 것이라 유기적인 흐름이 아니다.
+ */
+export function markDemoSession(search: string): void {
+  if (!started) return
+  const q = new URLSearchParams(search)
+  if (q.get('demo') !== null || q.get('nosplash') === '1') {
+    posthog.register_for_session({ demo_session: true })
+  }
+}
+
+/**
  * 화면 하나가 열렸다.
  *
  * **주소까지 갈아 끼운다.** 그냥 두면 `$current_url` 이 `…/app/#/home` 이고 `$pathname` 은
@@ -122,10 +154,14 @@ export function startPostHog(): void {
  */
 export function capturePageview(path: string, route: string): void {
   if (!started) return
+  const source = jumped ? 'guide' : 'app'
+  jumped = false
   posthog.capture('$pageview', {
     $current_url: `${location.origin}${path}`,
     $pathname: path,
     route,
+    /* 사람이 앱을 써서 온 것인지, 대본으로 건너뛴 것인지. 퍼널은 `app` 만 센다. */
+    nav_source: source,
   })
 }
 

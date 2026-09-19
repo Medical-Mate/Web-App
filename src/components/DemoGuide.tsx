@@ -7,6 +7,7 @@
  * 데스크톱에서만 보인다. 프레임 옆이 좁으면 접고, 휴대폰으로 열면 프레임과 함께 사라진다.
  */
 import { useEffect, useRef, useState } from 'react'
+import { markGuidedJump } from '../lib/analytics'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { classifyMemo } from '../data/ai'
 import { useStore } from '../store/store'
@@ -214,6 +215,9 @@ export function DemoGuide() {
   /* 줄을 누르면 그 화면으로. 로그인 뒤 화면인데 아직 로그인 전이면 먼저 로그인한다 — 안 그러면
      `Guard` 가 로그인으로 돌려보낸다. 스플래시와 로그인 줄은 그대로 둔다. */
   const goTo = async (step: Step, n: number) => {
+    /* 계측에 "이건 사람이 밟은 길이 아니다"라고 알린다. 이 표시가 없으면 대본을 훑은 것이
+       실제 사용 흐름으로 섞여서 퍼널이 거짓말을 한다(`lib/analytics.ts`). */
+    markGuidedJump()
     const target = await step.go({ state, startIntake, updateIntake })
     const { to, state: navState } = typeof target === 'string' ? { to: target, state: undefined } : target
     if (!state.authed && to !== '/' && to !== '/login') signIn()
@@ -226,6 +230,7 @@ export function DemoGuide() {
      `?demo=1` 로 넣은 시연 데이터도 함께 사라진다 — 다시 넣으려면 주소에 `?demo=1` 을 붙인다. */
   const reset = () => {
     if (!window.confirm('저장된 데이터를 모두 지우고 처음부터 시작할까요?')) return
+    markGuidedJump()
     /* 먼저 스플래시로 옮기고 지운다. 순서를 바꾸면 지금 화면의 `Guard` 가 로그아웃을 먼저 보고
        로그인으로 보내 버려서 스플래시를 건너뛴다. */
     navigate('/', { replace: true })
