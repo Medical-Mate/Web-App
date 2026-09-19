@@ -82,6 +82,17 @@ let started = false
  *
  * **페이지뷰도 직접 쏜다**(`capture_pageview: false`). `HashRouter` 라 화면이 바뀌어도 주소의
  * 경로는 언제나 `/app/` 이고 해시만 바뀐다. 알아서 세게 두면 화면 스무 장이 한 줄로 뭉친다.
+ *
+ * **세션 리플레이는 글자를 통째로 가린다**(`maskTextSelector: '*'`). 리플레이의 기본값은
+ * 입력칸만 가리고 화면에 그려진 글자는 그대로 녹화하는 것인데, 이 앱에서 문제인 쪽이 바로
+ * 그 그려진 글자다. 블록마다 `ph-no-capture` 를 다는 길도 있지만 그러면 새 화면을 만들 때
+ * 빠뜨릴 수 있고, 그 블록 안의 누름까지 함께 안 잡힌다. 통째로 가리는 편이 빠뜨릴 데가 없다.
+ *
+ * 가려도 리플레이가 답해야 할 것은 남는다 — 어느 화면에서, 어디를 누르고, 얼마나 머뭇거리다,
+ * 되돌아갔는지. "무엇을 썼는지"는 애초에 우리가 볼 것이 아니다.
+ *
+ * 리플레이를 켜는 것은 대시보드 쪽 스위치다. 이 설정은 켜기 전에 들어가 있어야 한다 —
+ * 켠 뒤에 넣으면 그 사이에 찍힌 것은 지워지지 않는다.
  */
 export function startPostHog(): void {
   if (started || !POSTHOG_KEY) return
@@ -92,6 +103,10 @@ export function startPostHog(): void {
     capture_pageview: false,
     mask_all_text: true,
     mask_all_element_attributes: true,
+    session_recording: {
+      maskAllInputs: true,
+      maskTextSelector: '*',
+    },
   })
 }
 
