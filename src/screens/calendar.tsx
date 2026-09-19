@@ -16,6 +16,7 @@ import {
 } from '../components/ui'
 import { S, fmt } from '../data/strings'
 import { recordSummary } from '../data/ai'
+import { capture } from '../lib/analytics'
 import { markFlowStart, popBackTo, popPast } from '../lib/flow'
 import { appointmentsOn, cardsOn, newId, recordsOn, useStore } from '../store/store'
 import type { Appointment, Todo } from '../lib/types'
@@ -487,7 +488,10 @@ export function CalendarDayScreen() {
                 <div className="mm-todo" key={t.id}>
                   <button
                     className={`mm-todo__box${t.done ? ' mm-todo__box--on' : ''}`}
-                    onClick={() => toggleTodo(appt.id, t.id)}
+                    onClick={() => {
+                      capture('todo_toggled', { done: !t.done })
+                      toggleTodo(appt.id, t.id)
+                    }}
                     aria-pressed={t.done}
                     aria-label={t.text}
                   >
@@ -601,6 +605,7 @@ export function CalendarDayScreen() {
         onCancel={() => setDeleteOpen(false)}
         onConfirm={() => {
           if (!appt) return
+          capture('schedule_deleted', { had_todos: (appt.todos ?? []).length > 0 })
           setDeleteOpen(false)
           setTodoDraft(null)
           deleteAppointment(appt.id)
@@ -642,6 +647,18 @@ export function ScheduleAddScreen() {
     cardId: nav.draft?.cardId ?? editing?.cardId ?? null,
     todos: nav.draft?.todos ?? editing?.todos ?? [],
   }))
+  /* 이 화면이 열렸다. `from` 은 담지 않는다 — 부르는 자리가 넷이고(캘린더 FAB · 일자 상세 ·
+     홈 · 다음 일정) 그걸 나르려면 화면 넷을 손봐야 한다. 새로 만드는지 고치는지가 지금
+     필요한 전부다. */
+  useEffect(() => {
+    /* **병원을 고르고 돌아온 것은 새로 연 것이 아니다.** 그 길에서 화면이 다시 세워지는데
+       (자리마다 판을 따로 그린다) 그때도 세면 한 번 연 것이 두 번으로 잡힌다. 돌아온
+       길에는 고른 이름이 실려 온다. */
+    if (nav.hospitalName !== undefined) return
+    capture('schedule_opened', { mode: nav.appointmentId ? 'edit' : 'new' })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const [sheet, setSheet] = useState<'date' | 'time' | null>(null)
   /** 그 자리에서 받는 줄. 빈 채로 끝내면 줄이 사라진다. */
   const [editingTodo, setEditingTodo] = useState<string | null>(null)
@@ -673,8 +690,18 @@ export function ScheduleAddScreen() {
   const save = () => {
     if (!draft.hospitalName || !draft.date) {
       setShowErrors(true)
+      capture('schedule_save_blocked', {
+        missing_hospital: !draft.hospitalName,
+        missing_date: !draft.date,
+      })
       return
     }
+    capture('schedule_saved', {
+      mode: editing ? 'edit' : 'new',
+      has_time: draft.time != null,
+      todo_count: draft.todos.length,
+      has_card: draft.cardId != null,
+    })
     if (editing) {
       /* 고치는 것이면 그 일정을 갈아 끼우고 왔던 화면으로 돌아간다(원본 `onSaved = popBackStack`). */
       updateAppointment(editing.id, {

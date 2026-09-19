@@ -469,6 +469,7 @@ interface PostvisitMemo {
  * 규칙 기반 분류다.
  */
 export async function classifyMemo(text: string, visitedOn: string, clinic?: string | null): Promise<MemoClassification> {
+  const askedAt = Date.now()
   if (apiAvailable()) {
     try {
       const res = await apiFetch<PostvisitMemo>('/api/demo/postvisit/memo', {
@@ -491,17 +492,36 @@ export async function classifyMemo(text: string, visitedOn: string, clinic?: str
         }
         return [{ axis, key: axisLabel(axis), value: a.value }]
       })
+      capture('memo_classified', {
+        duration_ms: Date.now() - askedAt,
+        source: 'server',
+        field_count: items.length,
+        has_followup: followUp != null,
+      })
       return {
         items,
         followUp,
         patientNotes: [...(res.card.patient_notes ?? []), ...(res.card.unsorted ?? [])],
         raw: text.trim(),
       }
-    } catch {
-      /* 아래 규칙 기반으로. */
+    } catch (e) {
+      /* 아래 규칙 기반으로.
+         **여기도 조용한 자리다.** 서버 분류가 멎어도 화면은 로컬 규칙으로 칸을 채워서
+         티가 안 난다. `source=local` 이 늘어나는 것으로만 알 수 있다. */
+      capture('memo_classify_failed', {
+        status: e instanceof ApiError ? e.status : 0,
+        reason: e instanceof ApiError ? e.message : 'unknown',
+      })
     }
   }
-  return classifyMemoLocally(text, visitedOn)
+  const local = await classifyMemoLocally(text, visitedOn)
+  capture('memo_classified', {
+    duration_ms: Date.now() - askedAt,
+    source: 'local',
+    field_count: local.items.length,
+    has_followup: local.followUp != null,
+  })
+  return local
 }
 
 function classifyMemoLocally(text: string, visitedOn: string): Promise<MemoClassification> {

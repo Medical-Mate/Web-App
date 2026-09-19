@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Screen, Pad } from '../components/Screen'
 import { BottomCta, Button, Chip, Dots, Icon, Illustration, InfoTooltip, Logo, StepProgress } from '../components/ui'
 import { A, S } from '../data/strings'
+import { capture } from '../lib/analytics'
 import { resetStack } from '../lib/flow'
 import { HEALTH_ITEM_MAX_COUNT, HEALTH_ITEM_MAX_LENGTH, HEALTH_TEXT_MAX_LENGTH } from '../lib/types'
 import { useStore } from '../store/store'
@@ -101,6 +102,7 @@ export function LoginScreen() {
 
   /* 데모용 — 실제 카카오 인증을 하지 않는다. 흐름만 보여주고 다음 화면으로 넘긴다. */
   const start = () => {
+    capture('login_started', { returning: state.onboardingDone })
     /* 로그인은 되돌아갈 수 없어야 한다. 백스택을 비우고 다음 화면 하나만 남긴다(원본 `resetTo`). */
     resetStack(navigate, state.onboardingDone ? '/home' : '/onboarding')
     signIn()
@@ -186,10 +188,20 @@ export function OnboardingScreen() {
 
   const go = (to: number) => {
     if (to < 0 || to >= PAGES.length) return
+    /* 어느 장이 한 번에 안 읽히는지. `direction=back` 이 잦은 장이 그 자리다. */
+    capture('onboarding_slide_viewed', {
+      index: to,
+      total: PAGES.length,
+      direction: to > page ? 'next' : 'back',
+    })
     setForward(to > page)
     setPage(to)
   }
-  const next = () => (last ? navigate('/profile-setup') : go(page + 1))
+  const next = () => {
+    if (!last) return go(page + 1)
+    capture('onboarding_completed', { slides_seen: PAGES.length })
+    navigate('/profile-setup')
+  }
 
   return (
     <Screen
@@ -213,7 +225,10 @@ export function OnboardingScreen() {
           <button
             className="mm-body-l-strong"
             style={{ color: 'var(--mm-fg-subtle)', minHeight: 'var(--mm-touch-min)' }}
-            onClick={() => navigate('/profile-setup')}
+            onClick={() => {
+              capture('onboarding_skipped', { at_index: page, total: PAGES.length })
+              navigate('/profile-setup')
+            }}
           >
             {S.onboarding_skip}
           </button>
@@ -340,11 +355,20 @@ export function ProfileSetupScreen() {
       setStep((s) => s + 1)
       return
     }
-    setHealth({
+    /* **값이 아니라 있는지 여부만 보낸다.** 복용약 · 기저질환 · 알러지는 건강 정보 그 자체라
+       내용을 밖으로 내지 않는다. 세 개가 모두 false 로 쌓이면 이 단계를 사실상 건너뛰고
+       있다는 신호이고, 그러면 카드의 그 칸들이 비게 된다. */
+    const health = {
       medications: mergeAnswer(chosen.medications, notes.medications),
       conditions: mergeAnswer(chosen.conditions, notes.conditions),
       allergies: mergeAnswer(chosen.allergies, notes.allergies),
+    }
+    capture('profile_saved', {
+      has_medications: health.medications.length > 0,
+      has_conditions: health.conditions.length > 0,
+      has_allergies: health.allergies.length > 0,
     })
+    setHealth(health)
     navigate('/profile-complete', { replace: true })
   }
 

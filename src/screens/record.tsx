@@ -19,6 +19,7 @@ import {
 } from '../components/ui'
 import { S, fmt } from '../data/strings'
 import { markFlowStart } from '../lib/flow'
+import { capture } from '../lib/analytics'
 import { useStore } from '../store/store'
 import { SEVERITY_LABELS, SEVERITY_NRS } from '../lib/types'
 import type { Appointment, BriefCard, Severity, VisitFollowUp, VisitRecord } from '../lib/types'
@@ -149,6 +150,7 @@ export function RecordScreen() {
         onCancel={() => setDeleteOpen(false)}
         onConfirm={() => {
           setDeleteOpen(false)
+          capture('record_deleted', { count: (selected ?? new Set()).size })
           deleteRecords([...(selected ?? [])])
           setSelected(null)
         }}

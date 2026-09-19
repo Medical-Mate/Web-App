@@ -21,6 +21,7 @@ import { fetchHospitals, hospitalKey, sameHospital, searchHospitals } from '../d
 import { apiAvailable } from '../data/api'
 import type { SearchResult } from '../data/hospitals'
 import { classifyMemo } from '../data/ai'
+import { capture } from '../lib/analytics'
 import type { MemoClassification } from '../data/ai'
 import { newId, useStore } from '../store/store'
 import type { Hospital, VisitItem, VisitRecord } from '../lib/types'
@@ -96,6 +97,13 @@ export function HospitalPickScreen() {
   const showSubmit = result.items.length > 0
 
   const submit = () => {
+    /* **고른 자리만 보낸다.** 검색어도 병원 이름도 담지 않는다. 몇 번째 줄을 고르는지가
+       정렬이 맞는지를 말해 준다 — 늘 0~2 에 몰리면 스무 개까지 보여줄 이유가 없다. */
+    capture('hospital_picked', {
+      purpose,
+      result_index: picked ? result.items.findIndex((h) => sameHospital(h, picked)) : -1,
+      result_count: result.items.length,
+    })
     if (purpose === 'after') {
       navigate('/visit/note', {
         state: {
@@ -283,9 +291,18 @@ function useHospitalSearch(query: string): { result: SearchResult; searching: bo
       try {
         const fresh = await fetchHospitals(keyword, controller.signal)
         cache.current.set(keyword, fresh)
+        /* **검색어 길이만 보낸다.** 친 글자는 병원 이름이라 담지 않는다. 결과가 0 인 비율이
+           높고 길이가 짧으면 덜 치고 기다리는 것이고, 길이가 길어도 0 이면 목록이 얇은 것이다. */
+        capture('hospital_searched', {
+          query_len: keyword.length,
+          result_count: fresh.items.length,
+          total: fresh.total,
+          truncated: fresh.truncated,
+        })
         setResult((prev) => (fresh.items.length ? fresh : { ...prev, total: fresh.total, truncated: false }))
       } catch {
         if (controller.signal.aborted) return
+        capture('hospital_search_failed', { query_len: keyword.length })
         setFailed(true)
         setResult(searchHospitals(keyword))
       } finally {
@@ -371,7 +388,14 @@ export function ClinicConfirmScreen() {
       surface
       bottom={
         <BottomCta>
-          <Button onClick={() => toNote(nav.clinic)}>{S.clinic_confirm_submit}</Button>
+          <Button
+            onClick={() => {
+              capture('clinic_confirmed', {})
+              toNote(nav.clinic)
+            }}
+          >
+            {S.clinic_confirm_submit}
+          </Button>
         </BottomCta>
       }
     >
@@ -415,7 +439,8 @@ export function ClinicConfirmScreen() {
               marginLeft: 'calc(-1 * var(--mm-s20))',
               marginTop: 'calc((var(--mm-control-md) - 20px) / -2)',
             }}
-            onClick={() =>
+            onClick={() => {
+              capture('clinic_changed', {})
               navigate('/hospital?purpose=after', {
                 state: {
                   cardId: nav.cardId,
@@ -424,7 +449,7 @@ export function ClinicConfirmScreen() {
                   depth: nextDepth(nav.depth, 1),
                 },
               })
-            }
+            }}
           >
             {S.clinic_confirm_other}
           </Button>
@@ -458,6 +483,9 @@ export function VisitNoteScreen() {
 
   const organize = () => {
     if (!memo.trim() || busy) return
+    /* 글자 수만. 메모 본문은 진료 내용 그 자체다. 짧게 썼을 때 빈 칸이 많으면 안내 문구를
+       고쳐야 한다는 뜻이라 길이는 필요하다. */
+    capture('memo_submitted', { memo_len: memo.trim().length })
     setBusy(true)
     classifyMemo(memo, nav.visitedOn, nav.clinic).then((result) => {
       setBusy(false)
@@ -710,6 +738,11 @@ export function VisitRecordScreen() {
       rawMemo: result.raw,
       createdAt: new Date().toISOString(),
     }
+    /* 이 흐름의 마지막 걸음. `memo_submitted` 와의 낙차가 정리 결과를 보고 접은 비율이다. */
+    capture('record_saved', {
+      field_count: shown.length,
+      has_followup: result.followUp != null,
+    })
     addRecord(record)
     if (nav.cardId) updateCard(nav.cardId, { visited: true, status: 'CONFIRMED' })
 
