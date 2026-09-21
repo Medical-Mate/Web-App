@@ -236,6 +236,9 @@ export const S = {
   "intake_chat_ai": "AI",
   "intake_chat_context": "짚은 부위",
   "intake_chat_placeholder": "메시지 입력",
+  /* 웹 데모에만 있는 줄. 적은 내용이 AI 정리를 위해 서버로 가므로 적는 자리에서 한 번 더
+     알린다 — 진입 화면의 동의문은 여기까지 오면 기억나지 않는다(Medical-Mate/AI#113). */
+  "input_no_pii": "이름 · 연락처는 적지 마세요",
   "intake_chat_send": "보내기",
   "intake_chat_voice": "음성으로 답하기",
   "intake_chat_waiting": "답변을 준비하고 있어요",

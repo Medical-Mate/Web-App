@@ -135,6 +135,8 @@ function ChatStep() {
             {closed && <Button onClick={() => updateIntake({ step: 3 })}>{S.intake_next}</Button>}
             {/* 원본은 `MedicalMateTextField`(최소 56 · 반경 16 · 왼쪽 20 오른쪽 4)에 보내기
                 아이콘 버튼(Ghost L)을 Actions 슬롯으로 넣는다. 같은 컴포넌트를 쓴다. */}
+            {/* 적는 자리에서 한 번 더. 입력칸 바로 위라 손이 가기 전에 읽힌다. */}
+            <p className="mm-body-s mm-input-note">{S.input_no_pii}</p>
             <div className={`mm-field__box${draft ? ' mm-field__box--filled' : ''}`}>
               <input
                 className="mm-field__input"

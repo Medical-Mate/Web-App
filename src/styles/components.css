@@ -1882,6 +1882,15 @@
   box-shadow: none;
 }
 
+/* 적는 자리의 한 줄. 경고가 아니라 안내라 붉게 세우지 않는다 — 겁주려는 것이 아니라
+   무엇을 적으면 되는지 알려 주는 말이다. 입력칸 바로 위에 붙여서 무엇에 대한 말인지
+   자리로 알게 한다. */
+.mm-input-note {
+  margin: 0 0 var(--mm-s6);
+  padding: 0 var(--mm-s4);
+  color: var(--mm-fg-subtle);
+}
+
 /* 잠근 이유. 설정 판 바로 아래에 붙여서 무엇에 대한 말인지 자리로 알게 한다. */
 .mm-settings__note {
   margin-top: var(--mm-s8);

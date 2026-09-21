@@ -557,6 +557,7 @@ export function VisitNoteScreen() {
         {/* 글자 수는 **입력 칸 안**이다. 원본 `MedicalMateTextArea` 가 `FieldSurface` 안에
             `Column { FieldText, Counter }` 로 쌓는다. 칸 밖에 두면 칸 높이(최소 120)에 셈줄이
             더해져 아래 칩 줄이 시안보다 한참 내려간다. */}
+        <p className="mm-body-s mm-input-note">{S.input_no_pii}</p>
         <div className={`mm-textarea${memo ? ' mm-textarea--filled' : ''}`}>
           <textarea
             className="mm-textarea__input"
