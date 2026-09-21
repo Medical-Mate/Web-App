@@ -355,7 +355,8 @@
   .pane.is-on .para:nth-child(3) {animation:slide-in .5s var(--ease) .44s both}
   .pane.is-on .para:nth-child(4) {animation:slide-in .5s var(--ease) .54s both}
   .pane.is-on .closing           {animation:slide-in .5s var(--ease) .68s both}
-  .pane.is-on .enter             {animation:slide-in .5s var(--ease) .80s both}
+  .pane.is-on .consent           {animation:slide-in .5s var(--ease) .76s both}
+  .pane.is-on .enter             {animation:slide-in .5s var(--ease) .86s both}
 
   /* 남은 시간만 알려주는 머리카락 선 — 크롬도 버튼도 아니다 */
   .tick{position:fixed;left:0;right:0;bottom:0;height:2px;background:rgba(255,255,255,.18);opacity:0;transition:opacity .4s var(--ease);z-index:3}
@@ -386,7 +387,7 @@
     .blob{animation:none}
     #splash.is-active .piece,#splash.is-active .spin,#splash.is-active .wordmark,
     #splash.is-active .splash-tagline,#ob.is-active .mark,#ob.is-active .dots,
-    .pane.is-on .eyebrow,.pane.is-on h1,.pane.is-on .para,
+    .pane.is-on .eyebrow,.pane.is-on h1,.pane.is-on .para,.pane.is-on .consent,
     .pane.is-on .closing,.pane.is-on .enter{animation:none;opacity:1;transform:none}
   }
 </style>
@@ -605,6 +606,21 @@ function placeThenSlide(el, inner, prop, value){
   el.style.transition = "";
 }
 
+/* 판 안의 글이 하나씩 내려오는 것을 **다시 튼다.**
+ *
+ * 첫 판(`#p1`)은 문서에 처음부터 `is-on` 이라, 스플래시 뒤에 가려진 채로 애니메이션이 이미
+ * 다 돌고 끝난다. 스플래시가 걷힐 때는 재생할 것이 남아 있지 않아서 글이 그냥 놓여 있었다.
+ * 판을 껐다 켜면 `.pane` 자체의 전환까지 다시 타서 깜빡이므로, 자식의 `animation` 만
+ * 잠깐 끊었다 잇는다 — 값을 지우고 한 번 재서(`offsetWidth`) 브라우저가 처음부터 돌게 한다.
+ */
+function replayStagger(pane){
+  pane.querySelectorAll(".eyebrow, h1, .para, .closing, .consent, .enter").forEach(el => {
+    el.style.animation = "none";
+    void el.offsetWidth;
+    el.style.animation = "";
+  });
+}
+
 /* dir = 1 다음으로(왼쪽으로 밀림) · -1 이전으로(오른쪽으로 밀림) */
 function goTo(n, dir){
   if (n < 0 || n >= SCREENS.length || n === idx) return;
@@ -637,6 +653,10 @@ function goTo(n, dir){
       /* 화면 층이 이미 미끄러지는 중이면 판은 제자리에서 켠다 */
       placeThenSlide(inPane, null, "--pdir", stepChanged ? 0 : (dir === 1 ? 1 : -1));
       inPane.classList.add("is-on");
+    } else if (stepChanged){
+      /* 켜져 있던 판으로 들어왔다(스플래시 → 안내 1). 판을 바꿀 때와 같은 차례로 보이게
+         자식 애니메이션만 다시 튼다. */
+      replayStagger(inPane);
     }
   }
 
