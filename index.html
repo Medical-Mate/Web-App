@@ -283,10 +283,6 @@
     display:block;font-weight:400;
     font-size:clamp(15px,.25vw + 13px,16px);line-height:1.68;color:var(--fg-on-primary);
   }
-  .closing{
-    margin:clamp(20px,2.4vh,28px) 0 0;font-size:clamp(15px,.25vw + 13px,16px);
-    line-height:1.68;font-weight:600;color:var(--fg-on-primary);
-  }
   /* 굵게 쓰는 낱말. `.para b` 가 줄 전체를 제목으로 만들기 때문에(그쪽이 `display:block`)
      그보다 무거운 선택자로 눌러 준다 — 문단 안에서 낱말만 굵어야 한다.
 
@@ -354,9 +350,8 @@
   .pane.is-on .para:nth-child(2) {animation:slide-in .5s var(--ease) .34s both}
   .pane.is-on .para:nth-child(3) {animation:slide-in .5s var(--ease) .44s both}
   .pane.is-on .para:nth-child(4) {animation:slide-in .5s var(--ease) .54s both}
-  .pane.is-on .closing           {animation:slide-in .5s var(--ease) .68s both}
-  .pane.is-on .consent           {animation:slide-in .5s var(--ease) .76s both}
-  .pane.is-on .enter             {animation:slide-in .5s var(--ease) .86s both}
+  .pane.is-on .consent           {animation:slide-in .5s var(--ease) .66s both}
+  .pane.is-on .enter             {animation:slide-in .5s var(--ease) .76s both}
 
   /* 남은 시간만 알려주는 머리카락 선 — 크롬도 버튼도 아니다 */
   .tick{position:fixed;left:0;right:0;bottom:0;height:2px;background:rgba(255,255,255,.18);opacity:0;transition:opacity .4s var(--ease);z-index:3}
@@ -373,7 +368,6 @@
     .paras{gap:12px}
     .para b{font-size:17px;margin-bottom:3px}
     .para span{font-size:15px;line-height:1.62}
-    .closing{margin-top:14px;font-size:15px;line-height:1.62}
     .consent{margin-top:12px;padding:11px 12px}
     /* 좁은 화면에서는 두 칸이 서로를 밀어낸다. 항목 이름을 줄 위에 올린다. */
     .consent__more dl{grid-template-columns:1fr;gap:2px}
@@ -388,7 +382,7 @@
     #splash.is-active .piece,#splash.is-active .spin,#splash.is-active .wordmark,
     #splash.is-active .splash-tagline,#ob.is-active .mark,#ob.is-active .dots,
     .pane.is-on .eyebrow,.pane.is-on h1,.pane.is-on .para,.pane.is-on .consent,
-    .pane.is-on .closing,.pane.is-on .enter{animation:none;opacity:1;transform:none}
+    .pane.is-on .consent,.pane.is-on .enter{animation:none;opacity:1;transform:none}
   }
 </style>
 </head>
@@ -499,8 +493,6 @@
               <span>앱은 서버에 저장하고 기기 사이를 동기화합니다. 웹 데모는 카드·기록을 이 브라우저에만 남기고, 다른 기기에서는 이어서 볼 수 없습니다.</span>
             </li>
           </ul>
-          <p class="closing">AI가 진단하지 않는다는 것, 환자가 확인하고 고치는 브리핑 카드, 모든 질문의 &ldquo;잘 모르겠어요 · 없어요&rdquo; 경로는 그대로입니다.</p>
-
           <!-- 동의. 버튼을 누르는 것이 동의 행위다 — 체크박스를 따로 두지 않는다.
                네 가지는 빼지 않는다: 해외 전송 · 목적 · 보관 기한 · 이름을 적지 말 것. -->
           <div class="consent">
@@ -617,7 +609,7 @@ function placeThenSlide(el, inner, prop, value){
  * 잠깐 끊었다 잇는다 — 값을 지우고 한 번 재서(`offsetWidth`) 브라우저가 처음부터 돌게 한다.
  */
 function replayStagger(pane){
-  pane.querySelectorAll(".eyebrow, h1, .para, .closing, .consent, .enter").forEach(el => {
+  pane.querySelectorAll(".eyebrow, h1, .para, .consent, .enter").forEach(el => {
     el.style.animation = "none";
     void el.offsetWidth;
     el.style.animation = "";
